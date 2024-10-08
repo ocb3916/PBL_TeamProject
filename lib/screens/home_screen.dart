@@ -20,12 +20,11 @@ class _HomeScreenState extends State<HomeScreen> {
   List<MovieModel> _NowPlayinhMovie = [];
   bool _isLoading = true;
 
-  // 더미 리뷰 데이터 추가
-  final List<Map<String, dynamic>> _reviewData = [
+  final List<Map<String, String>> _reviewData = [
     {
       'profileImageUrl': 'https://via.placeholder.com/50',
       'nickname': '사용자1',
-      'rating': 4.5,
+      'rating': '4.5',
       'review': '영화가 너무 재미있었습니다!',
       'movieTitle': '영화 제목 1',
       'moviePosterUrl': 'https://via.placeholder.com/100x150',
@@ -33,13 +32,14 @@ class _HomeScreenState extends State<HomeScreen> {
     {
       'profileImageUrl': 'https://via.placeholder.com/50',
       'nickname': '사용자2',
-      'rating': 5.0,
+      'rating': '5.0',
       'review': '최고의 경험이었습니다!',
       'movieTitle': '영화 제목 2',
       'moviePosterUrl': 'https://via.placeholder.com/100x150',
     },
     // 추가적인 리뷰 데이터...
   ];
+
 
   @override
   void initState() {
@@ -116,35 +116,33 @@ class _HomeScreenState extends State<HomeScreen> {
     ),
     SizedBox(height: 8),
     SizedBox(
-    height: 150,
-    child: ListView.builder(
-    scrollDirection: Axis.horizontal,
-    itemCount: _reviewData.length,
-    itemBuilder: (context, index) {
-    return Padding(
-    padding: const EdgeInsets.only(right: 8.0),
-    child: ReviewCard(
-        profileImageUrl: _reviewData[index]['profileImageUrl'],
-        nickname: _reviewData[index]['nickname'],
-        rating: _reviewData[index]['rating'],
-        review: _reviewData[index]['review'],
-        movieTitle: _reviewData[index]['movieTitle'],
-        moviePosterUrl: _reviewData[index]['moviePosterUrl'],
-    onTap: () {
-    Navigator.push(
-    context,
-    MaterialPageRoute(builder: (context) => ReviewListScreen()),
-    );
-    },
-    ),
-      );
-    },
-    ),
+    height: 300,
+      child: ListView.builder(
+        itemCount: _reviewData.length,
+        itemBuilder: (context, index) {
+          final review = _reviewData[index];
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+            child: ReviewCard(
+              profileImageUrl: review['profileImageUrl']!,
+              nickname: review['nickname']!,
+              rating: double.parse(review['rating']!), // 문자열을 double로 변환
+              review: review['review']!,
+              movieTitle: review['movieTitle']!,
+              moviePosterUrl: review['moviePosterUrl']!,
+              onTap: () {
+                // 리뷰 카드 클릭 시 이벤트 처리 (예: 상세화면으로 이동)
+                // 현재는 같은 화면으로 이동하도록 되어 있음
+              },
+            ),
+          );
+        },
+      ),
     ),
       SizedBox(height: 16), // 한줄평 섹션과 추천 섹션 간의 간격 추가
       SubTitle(title: '당신을 위한 추천'),
       SizedBox(
-        height: 200,
+        height: 150,
         child: ListView.builder(
           scrollDirection: Axis.horizontal,
           itemCount: 5,

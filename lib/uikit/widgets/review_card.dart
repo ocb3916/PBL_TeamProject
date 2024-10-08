@@ -1,3 +1,4 @@
+// review_card.dart
 import 'package:flutter/material.dart';
 import '../../constants/colors.dart';
 
@@ -16,8 +17,8 @@ class ReviewCard extends StatelessWidget {
     required this.nickname,
     required this.rating,
     required this.review,
-    required this.movieTitle, // 영화 제목 추가
-    required this.moviePosterUrl, // 포스터 URL 추가
+    required this.movieTitle,
+    required this.moviePosterUrl,
     required this.onTap,
   }) : super(key: key);
 
@@ -55,14 +56,13 @@ class ReviewCard extends StatelessWidget {
                       ),
                       SizedBox(height: 4),
                       Row(
-                        children: [
-                          Icon(Icons.star, color: Colors.yellow, size: 16),
-                          SizedBox(width: 4),
-                          Text(
-                            rating.toString(),
-                            style: TextStyle(color: AppColors.textWhite),
-                          ),
-                        ],
+                        children: List.generate(5, (index) {
+                          return Icon(
+                            index < rating.ceil() ? Icons.star : Icons.star_border,
+                            color: index < rating.ceil() ? Colors.yellow : Colors.grey,
+                            size: 16,
+                          );
+                        }),
                       ),
                     ],
                   ),
