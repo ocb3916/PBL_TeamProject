@@ -1,67 +1,143 @@
 import 'package:flutter/material.dart';
-import 'package:untitled1/screens/sign_up_screen.dart';
-import 'main_screen.dart'; // MainScreen import 추가
+import 'package:firebase_auth/firebase_auth.dart'; // Firebase Auth 임포트
+import '../constants/colors.dart';
+import '../screens/sign_up_screen.dart';
+import '../uikit/widgets/sub_title.dart';
+import '../uikit/widgets/top_bar.dart';
 
 class LoginScreen extends StatelessWidget {
-  final Function(bool) loginCallback; // 콜백 함수 추가
-
-  // 생성자에서 콜백을 받습니다.
-  LoginScreen({required this.loginCallback});
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-        title: Text('로그인'),
-    ),
-    body: Center(
-    child: Padding(
-    padding: const EdgeInsets.all(15.0),
+        backgroundColor: AppColors.background,
+        appBar: TopBar(),
+    body: Padding(
+    padding: const EdgeInsets.all(16.0),
     child: Column(
-    mainAxisAlignment: MainAxisAlignment.center,
+    crossAxisAlignment: CrossAxisAlignment.center,
     children: [
-    Text('로그인', style: TextStyle(fontSize: 24)),
-    SizedBox(height: 20),
+    SubTitle(title: '로그인'),
+    SizedBox(height: 16),
     TextField(
+    controller: emailController,
     decoration: InputDecoration(
-    labelText: '이메일',
-    border: OutlineInputBorder(),
+    filled: true,
+    fillColor: AppColors.cardBackground,
+    hintText: '이메일',
+    hintStyle: TextStyle(color: AppColors.textGray),
+    border: OutlineInputBorder(
+    borderRadius: BorderRadius.circular(8),
+    borderSide: BorderSide.none,
     ),
     ),
+    style: TextStyle(color: AppColors.textWhite),
+    ),
+    SizedBox(height: 16),
     TextField(
-    decoration: InputDecoration(
-    labelText: '비밀번호',
-    border: OutlineInputBorder(),
-    ),
     obscureText: true,
+    controller: passwordController,
+    decoration: InputDecoration(
+    filled: true,
+    fillColor: AppColors.cardBackground,
+    hintText: '비밀번호',
+    hintStyle: TextStyle(color: AppColors.textGray),
+    border: OutlineInputBorder(
+    borderRadius: BorderRadius.circular(8),
+    borderSide: BorderSide.none,
     ),
-    SizedBox(height: 20),
+    ),
+    style: TextStyle(color: AppColors.textWhite),
+    ),
+    SizedBox(height: 16),
     ElevatedButton(
-    onPressed: () {
-    // 로그인 성공 시
-    loginCallback(true); // 로그인 상태를 true로 설정
-    Navigator.pushReplacement(
-    context,
-    MaterialPageRoute(builder: (context) => MainScreen()), // MainScreen으로 이동
-    );
+    onPressed: () async {
+    // 로그인 함수 호출
+    User? user = await loginUser(emailController.text, passwordController.text);
+    if (user != null) {
+    print("로그인 성공: ${user.email}");
+    // 성공 후 홈 화면으로 이동 등 추가 작업 수행
+    } else {
+    print("로그인 실패");
+    }
     },
-    child: Text('로그인'),
+    style: ElevatedButton.styleFrom(
+    backgroundColor: AppColors.cardBackground,
+    padding: EdgeInsets.symmetric(horizontal: 36, vertical: 12),
+    shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.circular(8),
     ),
-      SizedBox(height: 10),
-      TextButton(
-        onPressed: () {
-          // 회원가입 페이지로 이동할 코드 추가
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => SignUpScreen()), // 회원가입 페이지로 이동
-          );
-        },
-        child: Text('아직 계정이 없으신가요? 회원가입'),
+    ),
+    child: Text(
+    '로그인',
+    style: TextStyle(
+    color: AppColors.textWhite,
+    fontSize: 16,
+    fontWeight: FontWeight.bold,
+    ),
+    ),
+    ),
+    SizedBox(height: 16),
+    TextButton(
+    onPressed: () {
+    // 비밀번호 찾기 로직 추가
+    },
+    child: Text(
+    '비밀번호 찾기',
+    style: TextStyle(color: AppColors.textGray),
+    ),
+    ),
+    TextButton(
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => SignUpScreen()),
+        );
+      },
+      child: Text(
+        '계정이 없으신가요? 회원가입',
+        style: TextStyle(color: AppColors.textGray),
+      ),
+    ),
+      SizedBox(height: 30),
+      Row(
+        children: [
+          Expanded(child: Divider(color: AppColors.textGray)),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Text("or", style: TextStyle(color: AppColors.textGray)),
+          ),
+          Expanded(child: Divider(color: AppColors.textGray)),
+        ],
+      ),
+      SizedBox(height: 30),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // 소셜 로그인 버튼 추가 가능 (예: 카카오, 네이버)
+          SizedBox(width: 16),
+        ],
       ),
     ],
     ),
     ),
-    ),
     );
+  }
+
+  Future<User?> loginUser(String email, String password) async {
+    try {
+      UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      // 로그인 성공시, 해당 유저 객체 반환
+      return userCredential.user;
+    } on FirebaseAuthException catch (e) {
+      print("Error logging in: ${e.message}");
+      return null;
+    }
   }
 }

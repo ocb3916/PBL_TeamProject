@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 class MovieModel {
   final bool adult;
   final String backdropPath;
@@ -11,7 +13,7 @@ class MovieModel {
   final String title;
   final double voteAverage;
   final int voteCount;
-  final List<int> genreIds; // 장르 ID 리스트 추가
+  final List<int> genreIds; // 장르 리스트 추가
 
   MovieModel({
     required this.adult,
@@ -26,7 +28,7 @@ class MovieModel {
     required this.title,
     required this.voteAverage,
     required this.voteCount,
-    required this.genreIds, // 장르 ID 리스트를 생성자에 추가
+    required this.genreIds,
   });
 
   factory MovieModel.fromJson(Map<String, dynamic> json) {
@@ -43,7 +45,7 @@ class MovieModel {
       title: json['title'] ?? "",
       voteAverage: json['vote_average']?.toDouble() ?? 0.0,
       voteCount: json['vote_count'] ?? 0,
-      genreIds: List<int>.from(json['genre_ids'] ?? []), // 장르 ID를 리스트로 변환
+      genreIds: List<int>.from(json['genre_ids'] ?? []),
     );
   }
 }

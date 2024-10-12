@@ -1,91 +1,178 @@
 import 'package:flutter/material.dart';
-import '../uikit/widgets/top_bar.dart'; // TopBar import 추가
-import 'login_screen.dart';
-import 'main_screen.dart'; // MainScreen import 추가
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart'; // Firestore 임포트
+import '../constants/colors.dart';
+import '../uikit/widgets/sub_title.dart';
+import '../uikit/widgets/top_bar.dart';
 
 class SignUpScreen extends StatelessWidget {
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  final nameController = TextEditingController();
+  final dobController = TextEditingController(); // 생년월일 입력
+  final nicknameController = TextEditingController();
+  final genderController = TextEditingController(); // 성별 입력
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: TopBar(), // TopBar 사용
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(15.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text('회원가입', style: TextStyle(fontSize: 24)),
-              SizedBox(height: 20),
-              TextField(
-                decoration: InputDecoration(
-                  labelText: '이메일',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              TextField(
-                decoration: InputDecoration(
-                  labelText: '비밀번호',
-                  border: OutlineInputBorder(),
-                ),
-                obscureText: true,
-              ),
-              SizedBox(height: 20),
-              TextField(
-                decoration: InputDecoration(
-                  labelText: '비밀번호 확인',
-                  border: OutlineInputBorder(),
-                ),
-                obscureText: true,
-              ),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  // 회원가입 성공 후 MainScreen으로 이동
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => MainScreen()), // 회원가입 후 MainScreen으로 리다이렉트
-                  );
-                },
-                child: Text('회원가입'),
-              ),
-              SizedBox(height: 10),
-              TextButton(
-                onPressed: () {
-                  // 로그인 페이지로 이동
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => LoginScreen(loginCallback: (status) {})), // 로그인 페이지로 이동
-                  );
-                },
-                child: Text('이미 계정이 있으신가요? 로그인'),
-              ),
-            ],
-          ),
+        backgroundColor: AppColors.background,
+        appBar: TopBar(),
+    body: Padding(
+    padding: const EdgeInsets.all(16.0),
+    child: Column(
+    crossAxisAlignment: CrossAxisAlignment.center,
+    children: [
+    SubTitle(title: '회원가입'),
+    SizedBox(height: 16),
+    TextField(
+    controller: emailController,
+    decoration: InputDecoration(
+    filled: true,
+    fillColor: AppColors.cardBackground,
+    hintText: '이메일 주소',
+    hintStyle: TextStyle(color: AppColors.textGray),
+    border: OutlineInputBorder(
+    borderRadius: BorderRadius.circular(8),
+    borderSide: BorderSide.none,
+    ),
+    ),
+    style: TextStyle(color: AppColors.textWhite),
+    ),
+    SizedBox(height: 16),
+    TextField(
+    controller: passwordController,
+    decoration: InputDecoration(
+    filled: true,
+    fillColor: AppColors.cardBackground,
+    hintText: '비밀번호',
+    hintStyle: TextStyle(color: AppColors.textGray),
+    border: OutlineInputBorder(
+    borderRadius: BorderRadius.circular(8),
+    borderSide: BorderSide.none,
+    ),
+    ),
+    obscureText: true,
+    style: TextStyle(color: AppColors.textWhite),
+    ),
+    SizedBox(height: 16),
+    TextField(
+    controller: nameController,
+    decoration: InputDecoration(
+    filled: true,
+    fillColor: AppColors.cardBackground,
+    hintText: '이름',
+    hintStyle: TextStyle(color: AppColors.textGray),
+    border: OutlineInputBorder(
+    borderRadius: BorderRadius.circular(8),
+    borderSide: BorderSide.none,
+    ),
+    ),
+    style: TextStyle(color: AppColors.textWhite),
+    ),
+    SizedBox(height: 16),
+    TextField(
+    controller: dobController,
+    decoration: InputDecoration(
+    filled: true,
+    fillColor: AppColors.cardBackground,
+    hintText: '생년월일 (YYYY-MM-DD)',
+    hintStyle: TextStyle(color: AppColors.textGray),
+    border: OutlineInputBorder(
+    borderRadius: BorderRadius.circular(8),
+    borderSide: BorderSide.none,
+    ),
+    ),
+    style: TextStyle(color: AppColors.textWhite),
+    ),
+    SizedBox(height: 16),
+    TextField(
+    controller: nicknameController,
+    decoration: InputDecoration(
+    filled: true,
+    fillColor: AppColors.cardBackground,
+    hintText: '닉네임',
+    hintStyle: TextStyle(color: AppColors.textGray),
+    border: OutlineInputBorder(
+    borderRadius: BorderRadius.circular(8),
+    borderSide: BorderSide.none,
+    ),
+    ),
+    style: TextStyle(color: AppColors.textWhite),
+    ),
+    SizedBox(height: 16),
+    // 성별 입력 필드 추가
+    TextField(
+    controller: genderController,
+    decoration: InputDecoration(
+    filled: true,
+    fillColor: AppColors.cardBackground,
+    hintText: '성별 (남/여)',
+    hintStyle: TextStyle(color: AppColors.textGray),
+    border: OutlineInputBorder(
+    borderRadius: BorderRadius.circular(8),
+    borderSide: BorderSide.none,
+    ),
+    ),
+    style: TextStyle(color: AppColors.textWhite),
+    ),
+    SizedBox(height: 16),
+    ElevatedButton(
+    onPressed: () async {
+    // 회원가입 로직을 여기서 구현합니다.
+    await registerUser(
+    emailController.text,
+    passwordController.text,
+    nameController.text,
+    DateTime.parse(dobController.text), // 생년월일 변환
+    nicknameController.text,
+    genderController.text,
+    );
+    },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppColors.cardBackground,
+        padding: EdgeInsets.symmetric(horizontal: 36, vertical: 12),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: '홈'),
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: '검색'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: '마이페이지'),
-        ],
-        currentIndex: 2, // 현재 선택된 항목: 마이페이지
-        onTap: (index) {
-          switch (index) {
-            case 0:
-            // 홈화면으로 이동
-              Navigator.pushReplacementNamed(context, '/home');
-              break;
-            case 1:
-            // 검색화면으로 이동
-              Navigator.pushReplacementNamed(context, '/search');
-              break;
-            case 2:
-            // 이미 마이페이지에 있을 때
-              break; // 이미 이 위치에 있습니다
-          }
-        },
+      child: Text(
+        '회원가입',
+        style: TextStyle(
+          color: AppColors.textWhite,
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+        ),
       ),
+    ),
+    ],
+    ),
+    ),
     );
+  }
+
+  Future<void> registerUser(String email, String password, String name, DateTime dateOfBirth, String nickname, String gender) async {
+    try {
+      // Firebase Authentication을 통해 사용자 등록
+      UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      // Firestore에 추가 정보 저장
+      await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).set({
+        'email': email,
+        'name': name,
+        'dateOfBirth': dateOfBirth,
+        'nickname': nickname,
+        'gender': gender, // 성별 필드 추가
+      });
+
+      print("User registered successfully!");
+    } on FirebaseAuthException catch (e) {
+      print("Error registering user: ${e.message}");
+    } catch (e) {
+      print("Error: $e");
+    }
   }
 }

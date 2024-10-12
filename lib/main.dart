@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'screens/main_screen.dart'; // MainScreen import
+import 'package:firebase_core/firebase_core.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(); // Firebase 초기화
   runApp(MyApp());
 }
 
@@ -13,13 +16,11 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MainScreen(), // 시작 화면은 MainScreen으로 설정
-      // routes는 필요에 따라 확장하여 사용할 수 있습니다.
+      home: MainScreen(),
       routes: {
         '/home': (context) => MainScreen(),
         '/search': (context) => MainScreen(),
         '/profile': (context) => MainScreen(),
-        // 로그인의 필요에 따라 추가적인 화면을 달리 표시할 수 있습니다.
       },
     );
   }

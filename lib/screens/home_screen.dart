@@ -7,6 +7,7 @@ import '../uikit/widgets/movie_card.dart';
 import '../uikit/widgets/recommendation_card.dart';
 import '../uikit/widgets/review_card.dart';
 import '../uikit/widgets/sub_title.dart';
+import '../uikit/widgets/top_bar.dart';
 import 'movie_detail_screen.dart';
 import 'movie_list_screen.dart';
 import 'review_list_screen.dart';
@@ -17,7 +18,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  List<MovieModel> _NowPlayinhMovie = [];
+  List<MovieModel> _NowPlayingMovie = [];
   bool _isLoading = true;
 
   final List<Map<String, String>> _reviewData = [
@@ -49,8 +50,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   getMovieData() async {
     var data = MovieData();
-    _NowPlayinhMovie = await data.fetchNowPlayingMovie();
-    _NowPlayinhMovie.sort((a, b) => DateTime.parse(b.releaseDate).compareTo(DateTime.parse(a.releaseDate)));
+    _NowPlayingMovie = await data.fetchNowPlayingMovie();
+    _NowPlayingMovie.sort((a, b) => DateTime.parse(b.releaseDate).compareTo(DateTime.parse(a.releaseDate)));
     setState(() {
       _isLoading = false;
     }); // UI 업데이트
@@ -60,6 +61,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: AppColors.background,
+        appBar: TopBar(),
         body: _isLoading
         ? Center(child: CircularProgressIndicator())
         : Padding(
@@ -73,27 +75,28 @@ class _HomeScreenState extends State<HomeScreen> {
     height: 250,
     child: ListView.builder(
     scrollDirection: Axis.horizontal,
-    itemCount: _NowPlayinhMovie.length,
+    itemCount: _NowPlayingMovie.length,
     itemBuilder: (context, index) {
-    if (_NowPlayinhMovie.isEmpty) {
+    if (_NowPlayingMovie.isEmpty) {
     return Center(child: CircularProgressIndicator());
     }
     return Padding(
     padding: const EdgeInsets.only(right: 8.0),
     child: MovieCard(
-    title: _NowPlayinhMovie[index].title,
+    title: _NowPlayingMovie[index].title,
     image: Image.network(
-    'https://image.tmdb.org/t/p/w500/${_NowPlayinhMovie[index].posterPath}',
+    'https://image.tmdb.org/t/p/w500/${_NowPlayingMovie[index].posterPath}',
     fit: BoxFit.cover,
     errorBuilder: (context, error, stackTrace) {
     return Icon(Icons.error);
     },
     ),
-    releaseInfo: '${_NowPlayinhMovie[index].releaseDate} · ${_NowPlayinhMovie[index].originalLanguage}',
-    onTap: () {
+    releaseInfo: '${_NowPlayingMovie[index].releaseDate} · ${_NowPlayingMovie[index].originalLanguage}',
+    movieId: _NowPlayingMovie[index].id,
+      onTap: () {
     Navigator.push(
     context,
-    MaterialPageRoute(builder: (context) => MovieDetailScreen()),
+    MaterialPageRoute(builder: (context) => MovieDetailScreen(movieId: _NowPlayingMovie[index].id,)),
     );
     },
     ),
@@ -122,7 +125,7 @@ class _HomeScreenState extends State<HomeScreen> {
         itemBuilder: (context, index) {
           final review = _reviewData[index];
           return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+            padding: const EdgeInsets.symmetric(vertical: 8.0,horizontal: 16.0),
             child: ReviewCard(
               profileImageUrl: review['profileImageUrl']!,
               nickname: review['nickname']!,
@@ -154,10 +157,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 impressiveQuote: '인상적인 대사',
                 briefContent: '이 영화는 정말 대단합니다!',
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => MovieDetailScreen()),
-                  );
+
+
                 },
               ),
             );
@@ -185,7 +186,7 @@ class _HomeScreenState extends State<HomeScreen> {
             style: TextStyle(
               color: AppColors.textWhite,
               fontSize: 16,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.bold,
             ),
           ),
         ),

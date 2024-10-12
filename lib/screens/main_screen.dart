@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import '../uikit/widgets/top_bar.dart';
 import 'home_screen.dart';
 import 'search_screen.dart';
 import 'profile_screen.dart';
+import 'login_screen.dart';
+import 'sign_up_screen.dart';
 import '../constants/colors.dart'; // 추가
 
 class MainScreen extends StatefulWidget {
@@ -28,7 +29,6 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: TopBar(),
       body: _screens[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: AppColors.cardBackground,

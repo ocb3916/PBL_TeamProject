@@ -5,20 +5,22 @@ class MovieCard extends StatelessWidget {
   final String title;
   final Widget image;
   final String releaseInfo;
-  final VoidCallback onTap;
+  final int movieId; // 영화 ID 추가
+  final VoidCallback onTap; // 콜백 함수 이름을 변경하여 명확하게
 
   const MovieCard({
     Key? key,
     required this.title,
     required this.image,
     required this.releaseInfo,
+    required this.movieId,
     required this.onTap,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: onTap, // 클릭 시의 동작
       child: Container(
         width: 140, // 카드의 너비 설정
         height: 250,

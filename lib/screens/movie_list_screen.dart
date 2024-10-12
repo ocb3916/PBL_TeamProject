@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:untitled1/constants/colors.dart';
+import 'package:untitled1/constants/genre.dart';
+import 'package:untitled1/model/movie_model.dart';
+import '../data/movie_data.dart';
 import '../uikit/widgets/movie_card.dart';
 import '../uikit/widgets/top_bar.dart';
+import 'movie_detail_screen.dart';
 
 class MovieListScreen extends StatefulWidget {
   @override
@@ -9,16 +13,63 @@ class MovieListScreen extends StatefulWidget {
 }
 
 class _MovieListScreenState extends State<MovieListScreen> {
-  List<String> _selectedGenres = [];
+  List<MovieModel> _movies =[];
+  List<int> _selectedGenres = [];
   String _sortBy = 'latest'; // 기본 정렬 기준
+  bool _isLoading = true;
+  int _currentPage = 1;
 
-  // 더미 영화 데이터를 생성합니다.
-  List<Map<String, dynamic>> _movies = List.generate(20, (index) => {
-    'title': '영화 제목 ${index + 1}',
-    'imageUrl': 'https://via.placeholder.com/100x150',
-    'releaseDate': '2023-05-${(index + 1).toString().padLeft(2, '0')}',
-    'voteAverage': 5.0 + index * 0.5 // 임의의 평점 추가 (5.0, 5.5, 6.0, ...)
-  });
+  @override
+  void initState() {
+    super.initState();
+    fetchMovies();
+  }
+
+  void fetchMovies() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    var data = MovieData();
+    try {
+      List<MovieModel> newMovies;
+
+      if (_sortBy == 'latest') {
+        newMovies = await data.fetchNowPlayingMovie();
+      } else if (_sortBy == 'popular') {
+        newMovies = await data.fetchPopularMovie();
+      } else if (_sortBy == 'topRated') {
+        newMovies = await data.fetchTopRatedMovie();
+      } else {
+        throw Exception("Invalid sortBy option");
+      }
+
+      newMovies = newMovies.where((movie) {
+        if (_selectedGenres.isEmpty) return true;
+        int matchCount = movie.genreIds.where((id) => _selectedGenres.contains(id)).length;
+        return matchCount > 0;
+      }).toList();
+
+      // 선택된 해시태그와 많이 매칭되는 순으로 정렬
+      newMovies.sort((a, b) {
+        int matchCountA = a.genreIds.where((id) => _selectedGenres.contains(id)).length;
+        int matchCountB = b.genreIds.where((id) => _selectedGenres.contains(id)).length;
+        return matchCountB.compareTo(matchCountA); // 매칭 개수 많은 순
+      });
+
+
+      setState(() {
+        _movies.addAll(newMovies); // 가져온 데이터 추가
+        _isLoading = false;
+      });
+    } catch (e) {
+      print("Error fetching movies: $e");
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -35,24 +86,27 @@ class _MovieListScreenState extends State<MovieListScreen> {
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
-                children: ['All', 'Action', 'Comedy', 'Horror', 'Drama', 'Sci-Fi']
-                    .map((genre) => Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                  child: FilterChip(
-                    label: Text('#$genre'),
-                    selected: _selectedGenres.contains(genre),
-                    onSelected: (selected) {
-                      setState(() {
-                        if (selected) {
-                          _selectedGenres.add(genre);
-                        } else {
-                          _selectedGenres.remove(genre);
-                        }
-                      });
-                    },
-                  ),
-                ))
-                    .toList(),
+                children: genreMap.entries.map((entry) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                    child: FilterChip(
+                      label: Text('#${entry.value}'),
+                      selected: _selectedGenres.contains(entry.key),
+                      onSelected: (selected) {
+                        setState(() {
+                          if (selected) {
+                            _selectedGenres.add(entry.key);
+                          } else {
+                            _selectedGenres.remove(entry.key);
+                          }
+                          _movies.clear(); // 필터링 결과에 따라 목록 초기화
+                          _currentPage = 1; // 페이지 번호 초기화
+                          fetchMovies(); // 필터링된 영화 목록 가져오기
+                        });
+                      },
+                    ),
+                  );
+                }).toList(),
               ),
             ),
           ),
@@ -73,7 +127,9 @@ class _MovieListScreenState extends State<MovieListScreen> {
                   onChanged: (value) {
                     setState(() {
                       _sortBy = value!;
-                      _sortMovies(); // 정렬 메소드 호출
+                      _movies.clear();
+                      _currentPage = 1;
+                      fetchMovies();
                     });
                   },
                 ),
@@ -81,47 +137,53 @@ class _MovieListScreenState extends State<MovieListScreen> {
             ),
           ),
           // 영화 리스트
-          Expanded(
-            child: GridView.builder(
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                childAspectRatio: 0.43,
-                crossAxisSpacing: 8,
-                mainAxisSpacing: 8,
-              ),
+      Expanded(
+        child: NotificationListener<ScrollNotification>(
+          onNotification: (scrollInfo) {
+            if (scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
+              // ListView 맨 끝에 도달 시 페이지 번호 증가 및 다음 페이지 불러오기
+              _currentPage += 1;
+              fetchMovies();
+            }
+            return true;
+          },
+          child: GridView.builder(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              childAspectRatio: 0.43,
+              crossAxisSpacing: 8,
+              mainAxisSpacing: 4,
+            ),
               itemCount: _movies.length,
               padding: EdgeInsets.all(8),
               itemBuilder: (context, index) {
                 return MovieCard(
-                  title: _movies[index]['title'],
-                  image: Image.network(
-                    _movies[index]['imageUrl'],
-                    fit: BoxFit.cover,
+                title: _movies[index].title,
+    image: Image.network(
+    'https://image.tmdb.org/t/p/w500${_movies[index].posterPath}',
+    fit: BoxFit.cover,
+    errorBuilder: (context, error, stackTrace) {
+      return Icon(Icons.error);
+    },
                   ),
-                  releaseInfo: _movies[index]['releaseDate'],
+    releaseInfo: '${_movies[index].releaseDate} · ${_movies[index].originalLanguage}',
+    movieId: _movies[index].id, // 영화 ID 전달
                   onTap: () {
-                    // 클릭 시 동작할 코드
+                    Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                    builder: (context) => MovieDetailScreen(movieId: _movies[index].id),
+                    ),
+                    );
                   },
                 );
               },
-            ),
           ),
-        ],
+        ),
       ),
-    )
+        ],
+    ),
+    ),
     );
-  }
-
-  // 영화 정렬 메소드
-  void _sortMovies() {
-    if (_sortBy == 'latest') {
-      _movies.sort((a, b) => DateTime.parse(b['releaseDate']).compareTo(DateTime.parse(a['releaseDate'])));
-    } else if (_sortBy == 'popular') {
-      // 이곳에 인기순 정렬 로직을 추가
-      // 예: 랜덤 또는 향상된 무작위 값을 기준으로 정렬할 수 있습니다.
-      _movies.shuffle(); // 예시로 무작위로 섞기
-    } else if (_sortBy == 'topRated') {
-      _movies.sort((a, b) => b['voteAverage'].compareTo(a['voteAverage'])); // 별점 높은 순서로 정렬
-    }
   }
 }
