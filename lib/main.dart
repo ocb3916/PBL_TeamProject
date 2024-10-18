@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:untitled1/SessionManager.dart';
+import 'SharedPreference.dart';
 import 'screens/main_screen.dart'; // MainScreen import
 import 'package:firebase_core/firebase_core.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(); // Firebase 초기화
+  await SharePrefManager.init(); // SharedPreferences 초기화
   runApp(MyApp());
+
 }
 
 class MyApp extends StatelessWidget {

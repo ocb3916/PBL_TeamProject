@@ -65,66 +65,69 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: AppColors.background,
-        appBar: TopBar(),
-        body: Padding(
+      backgroundColor: AppColors.background,
+      appBar: TopBar(),
+      body: Padding(
         padding: const EdgeInsets.all(8.0),
-    child: Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-    TextField(
-    controller: _searchController,
-    decoration: InputDecoration(
-    hintText: '영화, TV 프로그램, 인물을 검색해보세요',
-    prefixIcon: Icon(Icons.search, color: AppColors.textWhite),
-    filled: true,
-    fillColor: AppColors.cardBackground,
-    border: OutlineInputBorder(
-    borderRadius: BorderRadius.circular(8),
-    borderSide: BorderSide.none,
-    ),
-    ),
-    style: TextStyle(color: AppColors.textWhite),
-    ),
-    SizedBox(height: 10),
-    // 검색하기 전 최근 검색어
-    if (_recentSearches.isNotEmpty) ...[
-    SubTitle(title: '최근 검색어'),
-    ListView.builder(
-    shrinkWrap: true,
-    physics: NeverScrollableScrollPhysics(),
-    itemCount: _recentSearches.length,
-    itemBuilder: (context, index) {
-    return ListTile(
-    title: Text(
-    _recentSearches[index],
-    style: TextStyle(color: AppColors.textWhite),
-    ),
-    onTap: () {
-    // 클릭 시 검색어로 설정하고 검색 실행
-    _searchController.text = _recentSearches[index];
-    _onSearchChanged();
-    },
-    );
-    },
-    ),
-    ],
-      // 영화 리스트를 표시하는 메소드
-      Expanded(
-        child: _isLoading
-            ? Center(child: CircularProgressIndicator())
-            : _filteredMovies.isEmpty
-            ? Center(child: Text('결과가 없습니다.', style: TextStyle(color: AppColors.textWhite)))
-            : _buildMovieList(),
-      ),
-    ],
-    ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: '영화, TV 프로그램, 인물을 검색해보세요',
+                prefixIcon: Icon(Icons.search, color: AppColors.textWhite),
+                filled: true,
+                fillColor: AppColors.cardBackground,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+              style: TextStyle(color: AppColors.textWhite),
+            ),
+            SizedBox(height: 10),
+            // 검색하기 전 최근 검색어
+            if (_recentSearches.isNotEmpty) ...[
+              SubTitle(title: '최근 검색어'),
+              ListView.builder(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                itemCount: _recentSearches.length,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    title: Text(
+                      _recentSearches[index],
+                      style: TextStyle(color: AppColors.textWhite),
+                    ),
+                    onTap: () {
+                      // 클릭 시 검색어로 설정하고 검색 실행
+                      _searchController.text = _recentSearches[index];
+                      _onSearchChanged();
+                    },
+                  );
+                },
+              ),
+            ],
+            // 영화 리스트를 표시하는 메소드
+            Expanded(
+              child: _isLoading
+                  ? Center(child: CircularProgressIndicator())
+                  : _filteredMovies.isEmpty
+                      ? Center(
+                          child: Text('결과가 없습니다.',
+                              style: TextStyle(color: AppColors.textWhite)))
+                      : _buildMovieList(),
+            ),
+          ],
         ),
+      ),
     );
   }
 
   // 영화 리스트를 생성하는 메소드
   Widget _buildMovieList() {
+    // TODO :: GRIDLIST VIEW로 변경
     return ListView.builder(
       itemCount: _filteredMovies.length,
       itemBuilder: (context, index) {
