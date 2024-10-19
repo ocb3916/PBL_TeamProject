@@ -48,4 +48,9 @@ class MovieModel {
       genreIds: List<int>.from(json['genre_ids'] ?? []),
     );
   }
+
+  @override
+  String toString() {
+    return 'MovieModel{adult: $adult, backdropPath: $backdropPath, id: $id, originalLanguage: $originalLanguage, originalTitle: $originalTitle, overview: $overview, popularity: $popularity, posterPath: $posterPath, releaseDate: $releaseDate, title: $title, voteAverage: $voteAverage, voteCount: $voteCount, genreIds: $genreIds}';
+  }
 }

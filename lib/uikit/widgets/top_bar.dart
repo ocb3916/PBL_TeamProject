@@ -6,11 +6,11 @@ class TopBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppBar(
-      centerTitle: true, // 제목을 가운데로 설정
-      title: Text('앱 제목'),
-      backgroundColor: Colors.blue, // 원하는 색상으로 설정
-      automaticallyImplyLeading: true, // 뒤로가기 버튼 포함
+    return Container(
+      height: 400,
+      alignment: AlignmentDirectional.centerStart,
+      child: Image.asset("images/logo.png"),
+      color: Colors.black, // 원하는 색상으로 설정
     );
   }
 }

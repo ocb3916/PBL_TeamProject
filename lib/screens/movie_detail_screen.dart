@@ -55,6 +55,8 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
   }
 
   List<String> getGenreTags(List<int> genreIds) {
+    _movieDetail.toString();
+    print(genreIds);
     return genreIds.map((id) => genreMap[id] ?? "Unknown").toList();
   }
 
@@ -134,11 +136,32 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
                             ),
                           ],
                         ),
+                        SizedBox(height: 8),
+
+                        Wrap(
+                          spacing: 8.0,
+                          children: getGenreTags(_movieDetail!.genreIds)
+                              .map((genre) => Chip(
+                            label: Text(
+                              '#$genre',
+                              style: TextStyle(color: AppColors.textWhite), // 텍스트 색상 설정
+                            ),
+                            backgroundColor: Colors.grey, // Chip 배경색 설정 (선택 사항)
+                          ))
+                              .toList(),
+                        ),
                       ],
                     ),
+
                   ],
                 ),
               ),
+              // getGenreTags(_movieDetail!.genreIds)
+              //     .map((genre) => Chip(
+              //     label: Text(
+              //       '#$genre',
+              //       style: TextStyle(color: AppColors.textWhite), // 텍스트 색상 설정
+              //     )
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
@@ -149,19 +172,7 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
                     SizedBox(height: 8),
                     Text('평균 별점: ${_movieDetail!.voteAverage}',
                       style: TextStyle(fontSize: 16,color: AppColors.textWhite),),
-                    SizedBox(height: 8),
-                    Wrap(
-                      spacing: 8.0,
-                      children: getGenreTags(_movieDetail!.genreIds)
-                          .map((genre) => Chip(
-                        label: Text(
-                          '#$genre',
-                          style: TextStyle(color: AppColors.textWhite), // 텍스트 색상 설정
-                        ),
-                        backgroundColor: Colors.grey, // Chip 배경색 설정 (선택 사항)
-                      ))
-                          .toList(),
-                    ),
+
                     SizedBox(height: 8),
                     Text(
                       _movieDetail!.overview,

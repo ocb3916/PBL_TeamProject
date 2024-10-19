@@ -30,7 +30,6 @@ class _SearchScreenState extends State<SearchScreen> {
 
   _fetchMovies() async {
     // 초기 유저를 위해 데이터 로드
-    // 여기서는 단순히 최근 인기 영화를 불러오는 ලෙස 구현할 수 있습니다.
     var data = MovieData();
     try {
       // 여기서 TMDB API를 호출함.
@@ -101,7 +100,6 @@ class _SearchScreenState extends State<SearchScreen> {
                       style: TextStyle(color: AppColors.textWhite),
                     ),
                     onTap: () {
-                      // 클릭 시 검색어로 설정하고 검색 실행
                       _searchController.text = _recentSearches[index];
                       _onSearchChanged();
                     },
@@ -128,7 +126,8 @@ class _SearchScreenState extends State<SearchScreen> {
   // 영화 리스트를 생성하는 메소드
   Widget _buildMovieList() {
     // TODO :: GRIDLIST VIEW로 변경
-    return ListView.builder(
+    return GridView.builder(
+      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(maxCrossAxisExtent: 200, childAspectRatio: 2/3),
       itemCount: _filteredMovies.length,
       itemBuilder: (context, index) {
         final movie = _filteredMovies[index];
@@ -144,6 +143,9 @@ class _SearchScreenState extends State<SearchScreen> {
           releaseInfo: '${movie.releaseDate}',
           movieId: movie.id,
           onTap: () {
+            setState(() {
+              _recentSearches.add(movie.title);
+            });
             Navigator.push(
               context,
               MaterialPageRoute(

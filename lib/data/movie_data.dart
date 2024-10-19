@@ -71,6 +71,8 @@ class MovieData {
     );
 
     if (response.statusCode == 200) {
+      MovieModel model = MovieModel.fromJson(jsonDecode(response.body));
+      print("minfrank" + model.toString());
       return MovieModel.fromJson(jsonDecode(response.body));
     } else {
       throw Exception("Failed to load movie detail");
