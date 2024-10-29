@@ -2,13 +2,18 @@ import requests as re
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 import pandas as pd
+from dotenv import load_dotenv
+import os
 import time
 
-tmdb_api_key = "8da938ec86e61e4eca8849cb72c541bf"
+load_dotenv()
+
+tmdb_api_key = os.getenv("TMDB_API_KEY")
+tmdb_access_token = os.getenv("TMDB_ACCESS_TOKEN")
 
 headers = {
     "accept": "application/json",
-    "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI4ZGE5MzhlYzg2ZTYxZTRlY2E4ODQ5Y2I3MmM1NDFiZiIsIm5iZiI6MTcyOTU4MzYzOS4yNjg3NTgsInN1YiI6IjY3MDVkYmE2MDAwMDAwMDAwMDU4NmU3NyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.WDA0hMsjkNjFEOeMKN_YbhR0YwMixll1p-9hWvTNtyw"
+    "Authorization": f"Bearer {tmdb_access_token}"
 }
 
 # TMDB에서 인기도 순으로 영화 목록 가져오기
@@ -17,7 +22,7 @@ def get_popular_movies(page=1, language='ko-KR'):
     global headers
     movies = []
     for page_num in range(1, page + 1):
-        url = f"https://api.themoviedb.org/3/discover/movie?include_adult=true&include_video=false&language={language}&page={page_num}&sort_by=popularity.desc"
+        url = f"https://api.themoviedb.org/3/discover/movie?include_adult=true&include_video=false&language={language}&page={page_num}&sort_by=popularity.desc&vote_count.gte=50"
         response = re.get(url, headers=headers)
         data = response.json()
 
@@ -36,9 +41,9 @@ def get_popular_movies(page=1, language='ko-KR'):
     print('get_popular_movies() done.')
     return movies
 
-def get_reviews(imdb_id):
+def get_reviews(imdb_id, threshold):
     base_url = "https://www.imdb.com/"
-    url = f'https://www.imdb.com/title/{imdb_id}/reviews/?ref_=tt_ql_urv'
+    url = f'https://www.imdb.com/title/{imdb_id}/reviews/?ref_=tt_ql_2'
     res = re.get(url, headers={'User-agent': 'Mozila/5.0'})
 
     soup = BeautifulSoup(res.text, 'html.parser')
@@ -102,7 +107,7 @@ def get_reviews(imdb_id):
         # 추가 리뷰를 가져와서 기존 리뷰에 추가
         reviews.extend(current_reviews(soup))
 
-        if iterate == 2:
+        if iterate == threshold:
             break
 
         # 다시 "더보기" 버튼 확인
@@ -114,8 +119,14 @@ def get_reviews(imdb_id):
 
 if __name__ == "__main__":
     start = time.time()
+    print("API Key:", tmdb_api_key)
+    print("Access Token:", tmdb_access_token)
     # 인기 영화 목록 가져오기
-    popular_movies = get_popular_movies(page=1)
+    page_num = input('인기 영화 목록 리뷰 크롤러: 원하는 페이지 숫자를 입력하면 해당 페이지 만큼 리뷰를 크롤링 합니다.\n'
+                     '제작: 컴퓨터공학과 2020010847 오찬빈\n'
+                     '원하시는 페이지 숫자를 입력해주세요.(페이지 당 영화 20개): ')
+    threshold_num = input('각 영화마다 최대 몇 페이지까지 리뷰를 크롤링 할지 정해주세요: ')
+    popular_movies = get_popular_movies(page = int(page_num))
 
     all_reviews = []
     i = 0
@@ -124,7 +135,7 @@ if __name__ == "__main__":
         imdb_id = movie['imdb_id']
         if imdb_id:
             print(f'starting get_reviews({imdb_id})... [{i}/{len(popular_movies)}]')
-            reviews = get_reviews(imdb_id)
+            reviews = get_reviews(imdb_id, int(threshold_num) - 1)
             for review in reviews:
                 review['movie_title'] = movie['title']
                 all_reviews.extend(reviews)
