@@ -24,6 +24,24 @@ public class ReviewController {
         return reviewService.getAllReviews();
     }
 
+    // 리뷰 제목으로 조회
+    @GetMapping("/title/{title}")
+    public List<Review> getReviewsByTitle(@PathVariable String title) {
+        return reviewService.getReviewsByTitle(title);
+    }
+
+    // 닉네임으로 조회
+    @GetMapping("/nickname/{nickname}")
+    public List<Review> getReviewsByNickname(@PathVariable String nickname) {
+        return reviewService.getReviewsByNickname(nickname);
+    }
+
+    // 추천수가 특정 값 이상인 리뷰 조회
+    @GetMapping("/upvotes/{upvotes}")
+    public List<Review> getReviewsByUpvotes(@PathVariable Integer upvotes) {
+        return reviewService.getReviewsByUpvotes(upvotes);
+    }
+
     // 리뷰 ID로 조회
     @GetMapping("/{id}")
     public ResponseEntity<Review> getReviewById(@PathVariable Integer id) {
@@ -78,5 +96,11 @@ public class ReviewController {
     @GetMapping("/rating/{rating}")
     public List<Review> getReviewsByRatingGreaterThanEqual(@PathVariable BigDecimal rating) {
         return reviewService.getReviewsByRatingGreaterThanEqual(rating);
+    }
+    
+    // 추천수에 따라 내림차순으로 정렬된 리뷰 조회
+    @GetMapping("/sorted/upvotes")
+    public List<Review> getReviewsSortedByUpvotes() {
+        return reviewService.getReviewsSortedByUpvotes();
     }
 }
