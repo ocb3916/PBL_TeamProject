@@ -20,5 +20,16 @@ public interface ReviewRepository extends JpaRepository<Review, Integer> {
 
     // 특정 등급 이상의 리뷰 조회
     List<Review> findByRatingGreaterThanEqual(BigDecimal rating);
-}
 
+    // 리뷰 제목으로 리뷰 조회
+    List<Review> findByReviewTitle(String reviewTitle);
+
+    // 닉네임으로 리뷰 조회
+    List<Review> findByNickname(String nickname);
+ 
+    // 추천수가 특정 값 이상인 리뷰 조회
+    List<Review> findByUpvotesGreaterThanEqual(Integer upvotes);
+    
+    // 추천수에 따라 내림차순으로 정렬된 리뷰 조회
+    List<Review> findAllByOrderByUpvotesDesc();
+}
