@@ -55,4 +55,24 @@ public class ReviewService {
     public List<Review> getReviewsByRatingGreaterThanEqual(BigDecimal rating) {
         return reviewRepository.findByRatingGreaterThanEqual(rating);
     }
+
+    // 리뷰 제목으로 리뷰 조회
+    public List<Review> getReviewsByTitle(String title) {
+        return reviewRepository.findByReviewTitle(title);
+    }
+    
+    // 닉네임으로 리뷰 조회
+    public List<Review> getReviewsByNickname(String nickname) {
+        return reviewRepository.findByNickname(nickname);
+    }
+    
+    // 추천수가 특정 값 이상인 리뷰 조회
+    public List<Review> getReviewsByUpvotes(Integer upvotes) {
+        return reviewRepository.findByUpvotesGreaterThanEqual(upvotes);
+    }
+    
+    // 추천수에 따라 내림차순으로 정렬된 리뷰 조회
+    public List<Review> getReviewsSortedByUpvotes() {
+        return reviewRepository.findAllByOrderByUpvotesDesc();
+    }
 }
