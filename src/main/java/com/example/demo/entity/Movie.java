@@ -13,9 +13,8 @@ import java.math.BigDecimal;
 public class Movie {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // 자동 증가 설정
-    private Integer id;
-
+    private Long id;  // TMDB ID를 사용
+    
     @Column(nullable = false, length = 45) // NOT NULL 및 최대 길이 설정
     private String name;
 
