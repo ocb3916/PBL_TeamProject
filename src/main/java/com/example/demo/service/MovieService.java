@@ -21,7 +21,7 @@ public class MovieService {
     }
 
     // 영화 ID로 영화 조회
-    public Movie getMovieById(Integer id) {
+    public Movie getMovieById(Long id) {
         return movieRepository.findById(id).orElse(null);
     }
 
@@ -31,7 +31,7 @@ public class MovieService {
     }
 
     // 영화 삭제
-    public void deleteMovie(Integer id) {
+    public void deleteMovie(Long id) {
         movieRepository.deleteById(id);
     }
 
