@@ -48,8 +48,9 @@ public class Movie {
     // 기본 생성자
     public Movie() {}
 
-    public Movie(String name, String poster, String director, BigDecimal movieRating,
+    public Movie(Long id, String name, String poster, String director, BigDecimal movieRating,
                  Integer runningTime, AgeRating ageRating, BigDecimal score, String synopsis) {
+        this.id = id;
         this.name = name;
         this.poster = poster;
         this.director = director;
