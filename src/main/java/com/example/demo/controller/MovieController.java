@@ -25,7 +25,7 @@ public class MovieController {
 
     // 영화 ID로 조회
     @GetMapping("/{id}")
-    public ResponseEntity<Movie> getMovieById(@PathVariable Integer id) {
+    public ResponseEntity<Movie> getMovieById(@PathVariable Long id) {
         Movie movie = movieService.getMovieById(id);
         if (movie != null) {
             return ResponseEntity.ok(movie);
@@ -42,7 +42,7 @@ public class MovieController {
 
     // 영화 삭제
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteMovie(@PathVariable Integer id) {
+    public ResponseEntity<Void> deleteMovie(@PathVariable Long id) {
         movieService.deleteMovie(id);
         return ResponseEntity.noContent().build();
     }
