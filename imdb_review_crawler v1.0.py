@@ -65,7 +65,6 @@ def hide_spoiler(driver, wait):
     hide_spoiler_button = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, '.ipc-boolean-input__input')))
     hide_spoiler_button.click()
 
-
 def load_reviews(driver, imdb_id, threshold):
     url = f'https://www.imdb.com/title/{imdb_id}/reviews/?ref_=tt_ov_ql_2'
     wait = WebDriverWait(driver, 10)
@@ -75,7 +74,7 @@ def load_reviews(driver, imdb_id, threshold):
     try:
         hide_spoiler(driver, wait)
     except Exception as e:
-        print("Spoiler button not found:", e)
+        print("Spoiler button not found", e)
 
     iterate = 0
     while iterate < threshold:
@@ -146,7 +145,7 @@ if __name__ == "__main__":
         for movie in popular_movies:
             i += 1
             tmdb_id = movie['tmdb_id']
-            if tmdb_id in processed_ids:
+            if str(tmdb_id) in processed_ids:
                 print(f"Skipping already processed movie: {movie['title']} (TMDb ID: {tmdb_id})")
                 continue
 
