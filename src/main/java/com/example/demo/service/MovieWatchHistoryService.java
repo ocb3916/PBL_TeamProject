@@ -5,13 +5,18 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.demo.dto.MovieWatchHistoryDto;
 import com.example.demo.entity.MovieWatchHistory;
 import com.example.demo.entity.User;
 import com.example.demo.repository.MovieWatchHistoryRepository;
+import com.example.demo.repository.UserRepository;
 
 
 @Service
 public class MovieWatchHistoryService {
+
+    @Autowired
+    private UserRepository UserRepository;
     
     @Autowired
     private MovieWatchHistoryRepository MovieWatchHistoryRepository;
