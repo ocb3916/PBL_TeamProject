@@ -21,6 +21,11 @@ public class TVWatchHistory {
     // 기본 생성자
     public TVWatchHistory() {}
 
+    public TVWatchHistory(User user, Long tmdbId) {
+        this.user = user;
+        this.tmdbId = tmdbId;
+    }
+
 
     // Getter 및 Setter
     public Integer getId() {
