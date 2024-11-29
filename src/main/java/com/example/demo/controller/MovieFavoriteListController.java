@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.dto.MovieFavoriteListDto;
 import com.example.demo.entity.MovieFavoriteList;
 import com.example.demo.entity.User;
 import com.example.demo.service.MovieFavoriteListService;
@@ -45,8 +46,8 @@ public class MovieFavoriteListController {
 
     // 관심 목록 생성 또는 업데이트
     @PostMapping
-    public MovieFavoriteList createOrUpdateMovieFavoriteList(@RequestBody MovieFavoriteList movieFavoriteList) {
-        return movieFavoriteListService.saveMovieFavoriteList(movieFavoriteList);
+    public MovieFavoriteList createOrUpdateMovieFavoriteList(@RequestBody MovieFavoriteListDto dto) {
+        return movieFavoriteListService.saveMovieFavoriteList(dto);
     }
 
     // 관심 목록 삭제
