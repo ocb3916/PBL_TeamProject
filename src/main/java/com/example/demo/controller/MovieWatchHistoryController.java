@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.dto.MovieWatchHistoryDto;
 import com.example.demo.entity.MovieWatchHistory;
 import com.example.demo.entity.User;
 import com.example.demo.service.MovieWatchHistoryService;
@@ -45,8 +46,8 @@ public class MovieWatchHistoryController {
 
     // 관심 목록 생성 또는 업데이트
     @PostMapping
-    public MovieWatchHistory createOrUpdateMovieWatchHistory(@RequestBody MovieWatchHistory MovieWatchHistory) {
-        return movieWatchHistoryService.saveMovieWatchHistory(MovieWatchHistory);
+    public MovieWatchHistory createOrUpdateMovieWatchHistory(@RequestBody MovieWatchHistoryDto dto) {
+        return movieWatchHistoryService.saveMovieWatchHistory(dto);
     }
 
     // 관심 목록 삭제
