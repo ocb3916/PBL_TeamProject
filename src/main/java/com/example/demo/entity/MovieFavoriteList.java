@@ -21,6 +21,11 @@ public class MovieFavoriteList {
     // 기본 생성자
     public MovieFavoriteList() {}
 
+    public MovieFavoriteList(User user, Long tmdbId) {
+        this.user = user;
+        this.tmdbId = tmdbId;
+    }
+
 
     // Getter 및 Setter
     public Integer getId() {
