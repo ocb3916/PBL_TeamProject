@@ -32,10 +32,16 @@ public class MovieWatchHistoryService {
     }
 
     // 관심 목록 저장 또는 업데이트
-    public MovieWatchHistory saveMovieWatchHistory(MovieWatchHistory MovieWatchHistory) {
-        return MovieWatchHistoryRepository.save(MovieWatchHistory);
-    }
+    public MovieWatchHistory saveMovieWatchHistory(MovieWatchHistoryDto dto) {
+         // userId를 통해 User 객체 조회
+        User user = UserRepository.findById(dto.getUserId())
+            .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + dto.getUserId()));
 
+        // MovieWatchHistory 객체 생성 후 저장
+        MovieWatchHistory newEntry = new MovieWatchHistory(user, dto.getTmdbId());
+        return MovieWatchHistoryRepository.save(newEntry);
+    }
+    
     // 관심 목록 삭제
     public void deleteMovieWatchHistory(Integer id) {
         MovieWatchHistoryRepository.deleteById(id);
