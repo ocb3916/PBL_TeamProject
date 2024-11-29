@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.dto.TVFavoriteListDto;
 import com.example.demo.entity.TVFavoriteList;
 import com.example.demo.entity.User;
 import com.example.demo.service.TVFavoriteListService;
@@ -45,8 +46,8 @@ public class TVFavoriteListController {
 
     // 관심 목록 생성 또는 업데이트
     @PostMapping
-    public TVFavoriteList createOrUpdateTVFavoriteList(@RequestBody TVFavoriteList TVFavoriteList) {
-        return TVFavoriteListService.saveTVFavoriteList(TVFavoriteList);
+    public TVFavoriteList createOrUpdateTVFavoriteList(@RequestBody TVFavoriteListDto dto) {
+        return TVFavoriteListService.saveTVFavoriteList(dto);
     }
 
     // 관심 목록 삭제
