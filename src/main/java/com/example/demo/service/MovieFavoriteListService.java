@@ -32,8 +32,14 @@ public class MovieFavoriteListService {
     }
 
     // 관심 목록 저장 또는 업데이트
-    public MovieFavoriteList saveMovieFavoriteList(MovieFavoriteList MovieFavoriteList) {
-        return MovieFavoriteListRepository.save(MovieFavoriteList);
+    public MovieFavoriteList saveMovieFavoriteList(MovieFavoriteListDto dto) {
+         // userId를 통해 User 객체 조회
+        User user = UserRepository.findById(dto.getUserId())
+            .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + dto.getUserId()));
+
+        // MovieFavoriteList 객체 생성 후 저장
+        MovieFavoriteList newEntry = new MovieFavoriteList(user, dto.getTmdbId());
+        return MovieFavoriteListRepository.save(newEntry);
     }
 
     // 관심 목록 삭제
