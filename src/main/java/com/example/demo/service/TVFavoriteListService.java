@@ -32,9 +32,16 @@ public class TVFavoriteListService {
     }
 
     // 관심 목록 저장 또는 업데이트
-    public TVFavoriteList saveTVFavoriteList(TVFavoriteList TVFavoriteList) {
-        return TVFavoriteListRepository.save(TVFavoriteList);
+    public TVFavoriteList saveTVFavoriteList(TVFavoriteListDto dto) {
+         // userId를 통해 User 객체 조회
+        User user = UserRepository.findById(dto.getUserId())
+            .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + dto.getUserId()));
+
+        // TVFavoriteList 객체 생성 후 저장
+        TVFavoriteList newEntry = new TVFavoriteList(user, dto.getTmdbId());
+        return TVFavoriteListRepository.save(newEntry);
     }
+
 
     // 관심 목록 삭제
     public void deleteTVFavoriteList(Integer id) {
