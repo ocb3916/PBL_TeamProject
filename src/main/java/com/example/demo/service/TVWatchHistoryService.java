@@ -32,8 +32,14 @@ public class TVWatchHistoryService {
     }
 
     // 관심 목록 저장 또는 업데이트
-    public TVWatchHistory saveTVWatchHistory(TVWatchHistory TVWatchHistory) {
-        return TVWatchHistoryRepository.save(TVWatchHistory);
+    public TVWatchHistory saveTVWatchHistory(TVWatchHistoryDto dto) {
+         // userId를 통해 User 객체 조회
+        User user = UserRepository.findById(dto.getUserId())
+            .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + dto.getUserId()));
+
+        // TVWatchHistory 객체 생성 후 저장
+        TVWatchHistory newEntry = new TVWatchHistory(user, dto.getTmdbId());
+        return TVWatchHistoryRepository.save(newEntry);
     }
 
     // 관심 목록 삭제
