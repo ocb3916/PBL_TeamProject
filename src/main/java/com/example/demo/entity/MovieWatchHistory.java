@@ -21,6 +21,11 @@ public class MovieWatchHistory {
     // 기본 생성자
     public MovieWatchHistory() {}
 
+    public MovieWatchHistory(User user, Long tmdbId) {
+        this.user = user;
+        this.tmdbId = tmdbId;
+    }
+
 
     // Getter 및 Setter
     public Integer getId() {
