@@ -5,13 +5,18 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.demo.dto.TVFavoriteListDto;
 import com.example.demo.entity.TVFavoriteList;
 import com.example.demo.entity.User;
 import com.example.demo.repository.TVFavoriteListRepository;
+import com.example.demo.repository.UserRepository;
 
 
 @Service
 public class TVFavoriteListService {
+
+    @Autowired
+    private UserRepository UserRepository;
     
     @Autowired
     private TVFavoriteListRepository TVFavoriteListRepository;
