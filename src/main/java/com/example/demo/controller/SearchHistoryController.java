@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.SearchHistoryDto;
 import com.example.demo.entity.SearchHistory;
 import com.example.demo.entity.User;
 import com.example.demo.service.SearchHistoryService;
@@ -35,8 +36,8 @@ public class SearchHistoryController {
 
     // 검색 기록 생성 또는 업데이트
     @PostMapping
-    public SearchHistory createOrUpdateSearchHistory(@RequestBody SearchHistory searchHistory) {
-        return searchHistoryService.saveSearchHistory(searchHistory);
+    public SearchHistory createOrUpdateSearchHistory(@RequestBody SearchHistoryDto dto) {
+        return searchHistoryService.saveSearchHistory(dto);
     }
 
     // 검색 기록 삭제

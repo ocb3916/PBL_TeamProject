@@ -24,13 +24,13 @@ public class TVWatchHistoryController {
     @Autowired
     private TVWatchHistoryService TVWatchHistoryService;
 
-    // 모든 관심 목록 조회
+    // 모든 시청 기록 조회
     @GetMapping
     public List<TVWatchHistory> getAllTVWatchHistorys() {
         return TVWatchHistoryService.getAllTVWatchHistorys();
     }
 
-    // 특정 사용자가 등록한 모든 관심 목록 조회
+    // 특정 사용자가 등록한 모든 시청 기록 조회
     @GetMapping("/user/{userId}")
     public List<TVWatchHistory> getTVWatchHistorysByUser(@PathVariable String userId) {
         User user = new User();
@@ -38,19 +38,19 @@ public class TVWatchHistoryController {
         return TVWatchHistoryService.getTVWatchHistorysByUser(user);
     }
 
-    // TMDB ID로 관심 목록 조회(나중에 TMDB아이디로 영화이름 알아내서 영화이름으로 검색가능하게)
+    // TMDB ID로 시청 기록 조회(나중에 TMDB아이디로 영화이름 알아내서 영화이름으로 검색가능하게)
     @GetMapping("/{TMDB_ID}")
     public TVWatchHistory getTVWatchHistorysByTmdbId(@PathVariable Long tmdbId) {
         return TVWatchHistoryService.getTVWatchHistoryByTmdbId(tmdbId);
     }
 
-    // 관심 목록 생성 또는 업데이트
+    // 시청 기록 생성 또는 업데이트
     @PostMapping
     public TVWatchHistory createOrUpdateTVWatchHistory(@RequestBody TVWatchHistoryDto dto) {
         return TVWatchHistoryService.saveTVWatchHistory(dto);
     }
 
-    // 관심 목록 삭제
+    // 시청 기록 삭제
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTVWatchHistory(@PathVariable Integer id) {
         TVWatchHistoryService.deleteTVWatchHistory(id);
