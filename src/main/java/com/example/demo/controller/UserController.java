@@ -2,14 +2,21 @@ package com.example.demo.controller;
 
 import com.example.demo.entity.User;
 import com.example.demo.service.UserService;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/users")
+@CrossOrigin(origins="*")
 public class UserController {
 
     @Autowired
@@ -78,4 +85,29 @@ public class UserController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    @PostMapping("/login")
+    public ResponseEntity<User> login(@RequestBody Map<String, String> request) {
+        String id = request.get("id");
+        String pw = request.get("pw");
+        User user = userService.authenticate(id, pw);
+        if (user != null) {
+            return ResponseEntity.ok(user); // 로그인 성공 시 사용자 정보 반환
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build(); // 인증실패 시 401 반환
+        }
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(HttpServletRequest request) {
+        HttpSession session = request.getSession(false); // 현재 세션이 있으면 반환
+        if (session != null) {
+            session.invalidate(); // 세션 무효화
+        }
+        
+        // 로그아웃 성공 처리
+        return ResponseEntity.ok().build(); // 성공 응답
+    }
+
+
 }
