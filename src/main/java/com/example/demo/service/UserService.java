@@ -52,5 +52,15 @@ public class UserService {
     public User getUserByPhoneNumber(String phoneNumber) {
         return userRepository.findByPhoneNumber(phoneNumber);
     }
+
+    // 사용자 인증 메서드 추가 (ID와 비밀번호로 인증)
+    public User authenticate(String id, String pw) {
+        User user = getUserById(id); // ID로 사용자 조회
+        if (user != null && user.getPw().equals(pw)) { // 비밀번호 비교
+            return user; // 인증 성공
+        } else {
+            return null; // 인증 실패
+        }
+    }
 }
 
