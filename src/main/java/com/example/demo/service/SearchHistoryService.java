@@ -1,8 +1,11 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.SearchHistoryDto;
 import com.example.demo.entity.SearchHistory;
 import com.example.demo.entity.User;
 import com.example.demo.repository.SearchHistoryRepository;
+import com.example.demo.repository.UserRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -10,6 +13,9 @@ import java.util.List;
 
 @Service
 public class SearchHistoryService {
+
+    @Autowired
+    private UserRepository UserRepository;
 
     @Autowired
     private SearchHistoryRepository searchHistoryRepository;
@@ -25,8 +31,14 @@ public class SearchHistoryService {
     }
 
     // 검색 기록 저장 또는 업데이트
-    public SearchHistory saveSearchHistory(SearchHistory searchHistory) {
-        return searchHistoryRepository.save(searchHistory);
+    public SearchHistory saveSearchHistory(SearchHistoryDto dto) {
+        // userId를 통해 User 객체 조회
+        User user = UserRepository.findById(dto.getUserId())
+            .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + dto.getUserId()));
+
+        // SearchHistory 객체 생성 후 저장
+        SearchHistory newEntry = new SearchHistory(user, dto.getSearchHistory());
+        return searchHistoryRepository.save(newEntry);
     }
 
     // 검색 기록 삭제
