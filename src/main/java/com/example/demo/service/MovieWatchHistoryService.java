@@ -46,7 +46,7 @@ public class MovieWatchHistoryService {
         MovieWatchHistory newEntry = new MovieWatchHistory(user, dto.getTmdbId());
         return MovieWatchHistoryRepository.save(newEntry);
     }
-    
+
     // 관심 목록 삭제
     public void deleteMovieWatchHistory(Integer id) {
         MovieWatchHistoryRepository.deleteById(id);

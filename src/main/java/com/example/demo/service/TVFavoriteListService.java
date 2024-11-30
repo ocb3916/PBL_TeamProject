@@ -47,7 +47,6 @@ public class TVFavoriteListService {
         return TVFavoriteListRepository.save(newEntry);
     }
 
-
     // 관심 목록 삭제
     public void deleteTVFavoriteList(Integer id) {
         TVFavoriteListRepository.deleteById(id);
