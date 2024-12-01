@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.UserDto;
 import com.example.demo.entity.User;
 import com.example.demo.service.UserService;
 
@@ -41,8 +42,8 @@ public class UserController {
 
     // 사용자 생성 또는 업데이트
     @PostMapping
-    public User createOrUpdateUser(@RequestBody User user) {
-        return userService.saveUser(user);
+    public User createOrUpdateUser(@RequestBody UserDto userDto) {
+        return userService.saveUser(userDto);
     }
 
     // 사용자 삭제
