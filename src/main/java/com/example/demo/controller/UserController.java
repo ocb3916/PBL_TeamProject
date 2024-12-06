@@ -2,7 +2,9 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.UserDto;
 import com.example.demo.entity.User;
+import com.example.demo.service.EmailService;
 import com.example.demo.service.UserService;
+import com.example.demo.service.VerificationCodeService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -22,6 +24,12 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private VerificationCodeService verificationCodeService;
+
+    @Autowired
+    private EmailService emailService;
 
     // 모든 사용자 조회
     @GetMapping
@@ -110,5 +118,38 @@ public class UserController {
         return ResponseEntity.ok().build(); // 성공 응답
     }
 
+
+    // 비밀번호 재설정 스타트포인트
+    @PostMapping("/user-authentication")
+    public ResponseEntity<String> userAuthentication(@RequestParam String id, @RequestParam String name) {
+        // 얘네 역할은 유저의 ID와 이름으로 인증받아서 이메일 보내는 것까지
+        User user = userService.getUserById(id);
+        if(user.getName() == name){
+            String email = user.getEmail();
+            String verificationCode = verificationCodeService.generateCode(id); // 인증번호 생성
+            boolean isSent = emailService.sendVerificationEmail(email, verificationCode); // 이메일 전송
+            if (isSent) {
+                return ResponseEntity.ok("Verification code has been sent to your email.");
+            } else {
+                return ResponseEntity.status(500).body("Failed to send verification code.");
+            }
+        } else {
+            return ResponseEntity.status(400).body("User not found.");
+        }
+    }
+
+    // 비밀번호 재설정 엔드포인트(인증번호 검증은 인증번호컨트롤러에서 처리)
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(@RequestParam String id, @RequestParam String newPassword) {// 얘 역할은 그냥 비밀번호 초기화 역할만
+        User user = userService.getUserById(id);
+        // 비밀번호 재설정
+        boolean isReset = userService.resetPassword(user.getEmail(), newPassword);
+
+        if (isReset) {
+            return ResponseEntity.ok("Password has been reset successfully.");
+        } else {
+            return ResponseEntity.status(400).body("User not found.");
+        }
+    }
 
 }

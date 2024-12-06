@@ -16,6 +16,10 @@ public class UserService {
 
     @Autowired
     private PasswordService passwordService;
+    
+    @Autowired
+    private VerificationCodeService verificationCodeService;
+
 
     // 모든 사용자 조회
     public List<User> getAllUsers() {
@@ -87,6 +91,22 @@ public class UserService {
         userRepository.save(user);
     }
 
+    // 비밀번호 재설정 메서드
+    public boolean resetPassword(String Email, String newPassword) {
+        User User = userRepository.findByEmail(Email); // identifier는 이메일 또는 전화번호
 
+        if (User == null) {
+            return false; // 사용자를 찾을 수 없음
+        }
+
+        String hashedPassword = passwordService.encodePassword(newPassword);
+        User.setPw(hashedPassword);
+        userRepository.save(User);
+
+        // 인증번호 사용 완료 후 삭제
+        verificationCodeService.removeCode(Email);
+
+        return true;
+    }
 }
 

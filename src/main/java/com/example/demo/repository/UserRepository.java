@@ -17,5 +17,6 @@ public interface UserRepository extends JpaRepository<User, String> {
 
     // 전화번호로 사용자 조회
     User findByPhoneNumber(String phoneNumber);
+
 }
 
