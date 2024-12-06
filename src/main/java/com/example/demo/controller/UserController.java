@@ -30,8 +30,8 @@ public class UserController {
 
     @Autowired
     private EmailService emailService;
-
     // 모든 사용자 조회
+    
     @GetMapping
     public List<User> getAllUsers() {
         return userService.getAllUsers();
@@ -55,7 +55,7 @@ public class UserController {
     }
 
     // 사용자 삭제
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable String id) {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
@@ -103,53 +103,54 @@ public class UserController {
         if (user != null) {
             return ResponseEntity.ok(user); // 로그인 성공 시 사용자 정보 반환
         } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build(); // 인증실패 시 401 반환
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build(); // 인증 실패 시 401 반환
         }
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(HttpServletRequest request) {
-        HttpSession session = request.getSession(false); // 현재 세션이 있으면 반환
-        if (session != null) {
-            session.invalidate(); // 세션 무효화
-        }
-        
-        // 로그아웃 성공 처리
-        return ResponseEntity.ok().build(); // 성공 응답
+public ResponseEntity<Void> logout(HttpServletRequest request) {
+    HttpSession session = request.getSession(false); // 현재 세션이 있으면 반환
+    if (session != null) {
+        session.invalidate(); // 세션 무효화
     }
-
-
-    // 비밀번호 재설정 스타트포인트
-    @PostMapping("/user-authentication")
-    public ResponseEntity<String> userAuthentication(@RequestParam String id, @RequestParam String name) {
-        // 얘네 역할은 유저의 ID와 이름으로 인증받아서 이메일 보내는 것까지
-        User user = userService.getUserById(id);
-        if(user.getName() == name){
-            String email = user.getEmail();
-            String verificationCode = verificationCodeService.generateCode(id); // 인증번호 생성
-            boolean isSent = emailService.sendVerificationEmail(email, verificationCode); // 이메일 전송
-            if (isSent) {
-                return ResponseEntity.ok("Verification code has been sent to your email.");
-            } else {
-                return ResponseEntity.status(500).body("Failed to send verification code.");
-            }
+    // 로그아웃 성공 처리
+    return ResponseEntity.ok().build(); // 성공 응답
+}
+// 비밀번호 재설정 스타트포인트
+@PostMapping("/user-authentication")
+public ResponseEntity<String> userAuthentication(@RequestBody Map<String, String> request) {
+    // 얘네 역할은 유저의 ID와 이름으로 인증받아서 이메일 보내는 것까지
+    String id = request.get("id");
+    String name = request.get("name");
+    User user = userService.getUserById(id);
+    if (user != null && user.getName().equals(name)) {
+        String email = user.getEmail();
+        String verificationCode = verificationCodeService.generateCode(id); // 인증번호 생성
+        boolean isSent = emailService.sendVerificationEmail(email, verificationCode); // 이메일 전송
+        if (isSent) {
+            return ResponseEntity.ok("Verification code has been sent to your email.");
         } else {
-            return ResponseEntity.status(400).body("User not found.");
+            return ResponseEntity.status(500).body("Failed to send verification code.");
         }
+    } else {
+        return ResponseEntity.status(400).body("User not found or name does not match.");
     }
+}
 
-    // 비밀번호 재설정 엔드포인트(인증번호 검증은 인증번호컨트롤러에서 처리)
-    @PostMapping("/reset-password")
-    public ResponseEntity<String> resetPassword(@RequestParam String id, @RequestParam String newPassword) {// 얘 역할은 그냥 비밀번호 초기화 역할만
-        User user = userService.getUserById(id);
-        // 비밀번호 재설정
-        boolean isReset = userService.resetPassword(user.getEmail(), newPassword);
+// 비밀번호 재설정 엔드포인트 (인증번호 검증은 인증번호컨트롤러에서 처리)
+@PostMapping("/reset-password")
+public ResponseEntity<String> resetPassword(@RequestBody Map<String, String> request) {
+    // 얘 역할은 그냥 비밀번호 초기화 역할만
+    String id = request.get("id");
+    String newPassword = request.get("newPassword");
+    User user = userService.getUserById(id);
+    // 비밀번호 재설정
+    boolean isReset = userService.resetPassword(user.getEmail(), newPassword);
 
-        if (isReset) {
-            return ResponseEntity.ok("Password has been reset successfully.");
-        } else {
-            return ResponseEntity.status(400).body("User not found.");
-        }
+    if (isReset) {
+        return ResponseEntity.ok("Password has been reset successfully.");
+    } else {
+        return ResponseEntity.status(400).body("User not found.");
     }
-
+}
 }
