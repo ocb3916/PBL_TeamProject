@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -108,49 +109,154 @@ public class UserController {
     }
 
     @PostMapping("/logout")
-public ResponseEntity<Void> logout(HttpServletRequest request) {
-    HttpSession session = request.getSession(false); // 현재 세션이 있으면 반환
-    if (session != null) {
-        session.invalidate(); // 세션 무효화
-    }
-    // 로그아웃 성공 처리
-    return ResponseEntity.ok().build(); // 성공 응답
-}
-// 비밀번호 재설정 스타트포인트
-@PostMapping("/user-authentication")
-public ResponseEntity<String> userAuthentication(@RequestBody Map<String, String> request) {
-    // 얘네 역할은 유저의 ID와 이름으로 인증받아서 이메일 보내는 것까지
-    String id = request.get("id");
-    String name = request.get("name");
-    User user = userService.getUserById(id);
-    if (user != null && user.getName().equals(name)) {
-        String email = user.getEmail();
-        String verificationCode = verificationCodeService.generateCode(id); // 인증번호 생성
-        boolean isSent = emailService.sendVerificationEmail(email, verificationCode); // 이메일 전송
-        if (isSent) {
-            return ResponseEntity.ok("Verification code has been sent to your email.");
-        } else {
-            return ResponseEntity.status(500).body("Failed to send verification code.");
+    public ResponseEntity<Void> logout(HttpServletRequest request) {
+        HttpSession session = request.getSession(false); // 현재 세션이 있으면 반환
+        if (session != null) {
+            session.invalidate(); // 세션 무효화
         }
-    } else {
-        return ResponseEntity.status(400).body("User not found or name does not match.");
+        // 로그아웃 성공 처리
+        return ResponseEntity.ok().build(); // 성공 응답
     }
-}
-
-// 비밀번호 재설정 엔드포인트 (인증번호 검증은 인증번호컨트롤러에서 처리)
-@PostMapping("/reset-password")
-public ResponseEntity<String> resetPassword(@RequestBody Map<String, String> request) {
-    // 얘 역할은 그냥 비밀번호 초기화 역할만
-    String id = request.get("id");
-    String newPassword = request.get("newPassword");
-    User user = userService.getUserById(id);
-    // 비밀번호 재설정
-    boolean isReset = userService.resetPassword(user.getEmail(), newPassword);
-
-    if (isReset) {
-        return ResponseEntity.ok("Password has been reset successfully.");
-    } else {
-        return ResponseEntity.status(400).body("User not found.");
+    // 비밀번호 재설정 스타트포인트
+    @PostMapping("/user-authentication")
+    public ResponseEntity<String> userAuthentication(@RequestBody Map<String, String> request) {
+        // 얘네 역할은 유저의 ID와 이름으로 인증받아서 이메일 보내는 것까지
+        String id = request.get("id");
+        String name = request.get("name");
+        User user = userService.getUserById(id);
+        if (user != null && user.getName().equals(name)) {
+            String email = user.getEmail();
+            String verificationCode = verificationCodeService.generateCode(id); // 인증번호 생성
+            boolean isSent = emailService.sendVerificationEmail(email, verificationCode); // 이메일 전송
+            if (isSent) {
+                return ResponseEntity.ok("Verification code has been sent to your email.");
+            } else {
+                return ResponseEntity.status(500).body("Failed to send verification code.");
+            }
+        } else {
+            return ResponseEntity.status(400).body("User not found or name does not match.");
+        }
     }
-}
+
+    // 인증번호 재전송
+    @PostMapping("/resend-code")
+    public ResponseEntity<?> resendCode(@RequestBody Map<String, String> request) {
+        String userId = request.get("userId");
+        String email = request.get("email");
+
+        if (email == null || email.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of(
+                "success", false,
+                "message", "Email must be provided."
+            ));
+        }
+
+        // 새로운 인증번호 생성 및 저장
+        String newCode = verificationCodeService.generateCode(userId);
+
+        // 이메일로 전송
+        boolean emailSent = emailService.sendVerificationEmail(email, newCode);
+
+        if (!emailSent) {
+            return ResponseEntity.internalServerError().body(Map.of(
+                "success", false,
+                "message", "Failed to send verification email."
+            ));
+        }
+
+        return ResponseEntity.ok(Map.of(
+            "success", true,
+            "message", "Verification code resent successfully."
+        ));
+    }
+    
+    // 비밀번호 재설정 엔드포인트 (인증번호 검증은 인증번호컨트롤러에서 처리)
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(@RequestBody Map<String, String> request) {
+        // 얘 역할은 그냥 비밀번호 초기화 역할만
+        String id = request.get("id");
+        String newPassword = request.get("newPassword");
+        User user = userService.getUserById(id);
+        // 비밀번호 재설정
+        boolean isReset = userService.resetPassword(user.getEmail(), newPassword);
+
+        if (isReset) {
+            return ResponseEntity.ok("Password has been reset successfully.");
+        } else {
+            return ResponseEntity.status(400).body("User not found.");
+        }
+    }
+
+    // 아이디 중복 체크
+    @GetMapping("/check-id")
+    public ResponseEntity<Map<String, Boolean>> checkIdDuplicate(@RequestBody Map<String, String> request) {
+	String id = request.get("id");
+        boolean isAvailable = userService.isIdAvailable(id);
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("available", isAvailable);
+        return ResponseEntity.ok(response);
+    }
+    
+    // 이메일 업데이트
+    @PutMapping("/email")
+    public ResponseEntity<?> updateEmail(@RequestBody Map<String, String> request) {
+        try {
+            String userId = request.get("userId");
+            String newEmail = request.get("value");
+
+            userService.updateEmail(userId, newEmail);
+
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", "Email updated successfully."
+            ));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                "success", false,
+                "message", e.getMessage()
+            ));
+        }
+    }
+
+    // 전화번호 업데이트
+    @PutMapping("/phone")
+    public ResponseEntity<?> updatePhone(@RequestBody Map<String, String> request) {
+        try {
+            String userId = request.get("userId");
+            String newPhone = request.get("value");
+
+            userService.updatePhone(userId, newPhone);
+
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", "Phone number updated successfully."
+            ));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                "success", false,
+                "message", e.getMessage()
+            ));
+        }
+    }
+
+    // 닉네임 업데이트
+    @PutMapping("/nickname")
+    public ResponseEntity<?> updateNickname(@RequestBody Map<String, String> request) {
+        try {
+            String userId = request.get("userId");
+            String newNickname = request.get("value");
+
+            userService.updateNickname(userId, newNickname);
+
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", "Nickname updated successfully."
+            ));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                "success", false,
+                "message", e.getMessage()
+            ));
+        }
+    }
 }

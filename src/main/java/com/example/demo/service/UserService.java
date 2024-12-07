@@ -108,5 +108,38 @@ public class UserService {
 
         return true;
     }
+
+    // id중복 확인
+    public boolean isIdAvailable(String id) {
+        return !userRepository.existsById(id);
+    }
+
+    // 이메일 변경
+    public void updateEmail(String userId, String newEmail) {
+
+        User user = getUserById(userId);
+
+        user.setEmail(newEmail);
+        userRepository.save(user);
+    }
+
+    // 전화번호 변경
+    public void updatePhone(String userId, String newPhone) {
+
+        User user = getUserById(userId);
+
+        user.setPhoneNumber(newPhone);
+        userRepository.save(user);
+    }
+
+    // 닉네임 변경
+    public void updateNickname(String userId, String newNickname) {
+
+        User user = getUserById(userId);
+
+        user.setNickName(newNickname);
+        userRepository.save(user);
+    }
+
 }
 
