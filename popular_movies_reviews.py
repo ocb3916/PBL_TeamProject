@@ -177,19 +177,19 @@ if __name__ == "__main__":
     print("Access Token:", tmdb_access_token)
 
     # 중복 처리된 ID 로드
-    # processed_ids = load_processed_ids()
+    processed_ids = load_processed_ids()
 
     # 인기 영화 목록 가져오기
     all_reviews = []
     movie_ids = []
     new_ids = set()  # 이번 실행에서 처리된 새로운 ID
-    for page in range(1, 3):
+    for page in range(1, 5):
         popular_movies = get_popular_movies(page)
-        for movie in tqdm(popular_movies, desc="imdb-id 수집 중"):
+        for movie in popular_movies:
             tmdb_id = movie['id']
-            # if str(movie_id) in processed_ids:
-            #     print(f"Skipping already processed movie: https://www.themoviedb.org/movie/{tmdb_id}")
-            #     continue
+            if str(tmdb_id) in processed_ids:
+                print(f"Skipping already processed movie: https://www.themoviedb.org/movie/{tmdb_id}")
+                continue
 
             imdb_id = get_imdb_id(tmdb_id)
             movie_ids.append((tmdb_id, imdb_id))
@@ -215,7 +215,7 @@ if __name__ == "__main__":
         print("추가된 리뷰가 없습니다.")
 
     # 새로운 TMDb ID 저장
-    # save_processed_ids(new_ids)
-    # print("새로운 TMDb ID가 'processed_movie_ids.txt'에 저장되었습니다.")
+    save_processed_ids(new_ids)
+    print("새로운 TMDb ID가 'processed_movie_ids.txt'에 저장되었습니다.")
 
     print(f'수행시간: {time.time() - start: .0f}초')

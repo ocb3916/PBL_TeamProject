@@ -181,7 +181,7 @@ if __name__ == "__main__":
     print("Access Token:", tmdb_access_token)
 
     # 중복 처리된 ID 로드
-    # processed_ids = load_processed_ids()
+    processed_ids = load_processed_ids()
 
     countries = ["KR", "JP", "US"]
     tv_ids = []  # the list of (tmdb-id, imdb-id)
@@ -189,10 +189,10 @@ if __name__ == "__main__":
     collected_tv_ids = set()
 
     for country in countries:
-        for page in range(1, 3):
+        for page in range(1, 5):
             popular_tv = get_popular_tv(page, country)
 
-            for tv in tqdm(popular_tv, desc=f"{country} 인기 tv 프로그램 imdb-id 수집 {page}/2"):
+            for tv in tqdm(popular_tv, desc=f"{country} 인기 tv 프로그램 imdb-id 수집 {page}/4"):
                 tv_id = tv['id']  # tmdb-id
                 imdb_id = get_imdb_id(tv_id)
                 if imdb_id:
@@ -211,18 +211,18 @@ if __name__ == "__main__":
                 collected_tv_ids.add(tv_id)
 
     # 리뷰 수집
-    i = 1
+    i = 0
     for tmdb_id, imdb_id in tv_ids:
+        i += 1
         print(f'https://www.imdb.com/title/{imdb_id}/reviews/?ref_=tt_ov_ql_2&spoilers=EXCLUDE 리뷰 수집 중 ({i}/{len(tv_ids)})')
-        # if str(tmdb_id) in processed_ids:
-        #     print(f"Skipping already processed tv https://www.themoviedb.org/tv/{tmdb_id}")
-        #     continue
+        if str(tmdb_id) in processed_ids:
+            print(f"Skipping already processed tv https://www.themoviedb.org/tv/{tmdb_id}")
+            continue
 
         reviews = get_reviews(imdb_id, 1)
         for review in reviews:
             review['tmdb-id'] = tmdb_id
         all_reviews.extend(reviews)
-        i += 1
 
     # DataFrame 생성 후 json 파일로 저장
     if all_reviews:
@@ -233,7 +233,7 @@ if __name__ == "__main__":
         print("추가된 리뷰가 없습니다.")
 
     # 새로운 TMDb ID 저장
-    # save_processed_ids(collected_tv_ids)
-    # print("새로운 TMDb ID가 'processed_tv_ids.txt'에 저장되었습니다.")
+    save_processed_ids(collected_tv_ids)
+    print("새로운 TMDb ID가 'processed_tv_ids.txt'에 저장되었습니다.")
 
     print(f'수행시간: {time.time() - start: .0f}초')
