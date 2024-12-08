@@ -117,9 +117,10 @@ public class UserController {
         // 로그아웃 성공 처리
         return ResponseEntity.ok().build(); // 성공 응답
     }
+
     // 비밀번호 재설정 스타트포인트
     @PostMapping("/user-authentication")
-    public ResponseEntity<String> userAuthentication(@RequestBody Map<String, String> request) {
+    public ResponseEntity<String> userAuthentication(@RequestBody Map<String, String> request, HttpSession session) {
         // 얘네 역할은 유저의 ID와 이름으로 인증받아서 이메일 보내는 것까지
         String id = request.get("id");
         String name = request.get("name");
@@ -129,6 +130,7 @@ public class UserController {
             String verificationCode = verificationCodeService.generateCode(id); // 인증번호 생성
             boolean isSent = emailService.sendVerificationEmail(email, verificationCode); // 이메일 전송
             if (isSent) {
+                session.setAttribute("userId", id);
                 return ResponseEntity.ok("Verification code has been sent to your email.");
             } else {
                 return ResponseEntity.status(500).body("Failed to send verification code.");
@@ -140,11 +142,10 @@ public class UserController {
 
     // 인증번호 재전송
     @PostMapping("/resend-code")
-    public ResponseEntity<?> resendCode(@RequestBody Map<String, String> request) {
-        String userId = request.get("userId");
-        //String email = request.get("email");
+    public ResponseEntity<?> resendCode(HttpSession session) {
+        String userId = (String) session.getAttribute("userId");
         User user = userService.getUserById(userId);
-        String email = user.getEmail(); // 아이디 하나만 입력받게 수정
+        String email = user.getEmail();
 
         if (email == null || email.isEmpty()) {
             return ResponseEntity.badRequest().body(Map.of(
@@ -174,9 +175,9 @@ public class UserController {
     
     // 비밀번호 재설정 엔드포인트 (인증번호 검증은 인증번호컨트롤러에서 처리)
     @PostMapping("/reset-password")
-    public ResponseEntity<String> resetPassword(@RequestBody Map<String, String> request) {
+    public ResponseEntity<String> resetPassword(@RequestBody Map<String, String> request, HttpSession session) {
         // 얘 역할은 그냥 비밀번호 초기화 역할만
-        String id = request.get("id");
+        String id = (String) session.getAttribute("userId");
         String newPassword = request.get("newPassword");
         User user = userService.getUserById(id);
         // 비밀번호 재설정
@@ -190,7 +191,7 @@ public class UserController {
     }
 
     // 아이디 중복 체크
-    @GetMapping("/check-id")
+    @PostMapping("/check-id")
     public ResponseEntity<Map<String, Boolean>> checkIdDuplicate(@RequestBody Map<String, String> request) {
 	String id = request.get("id");
         boolean isAvailable = userService.isIdAvailable(id);

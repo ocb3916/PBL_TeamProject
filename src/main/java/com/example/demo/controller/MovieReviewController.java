@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import com.example.demo.entity.MovieReview;
 import com.example.demo.entity.User;
 import com.example.demo.service.MovieReviewService;
+import com.example.demo.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,11 +11,15 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@CrossOrigin(origins="*")
 @RequestMapping("/api/movie-reviews")
 public class MovieReviewController {
 
     @Autowired
     private MovieReviewService movieReviewService;
+
+    @Autowired
+    private UserService userService;
 
     // 모든 리뷰 조회
     @GetMapping
@@ -51,14 +56,19 @@ public class MovieReviewController {
         }
     }
 
+
     // 리뷰 생성 또는 업데이트
     @PostMapping
     public MovieReview createOrUpdateMovieReview(@RequestBody MovieReview movieReview) {
+        if (movieReview.getUserId() != null && !movieReview.getUserId().isEmpty()) {
+            User user = userService.getUserById(movieReview.getUserId());
+            movieReview.setUser(user);
+        }
         return movieReviewService.saveMovieReview(movieReview);
     }
 
     // 리뷰 삭제
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteMovieReview(@PathVariable Integer id) {
         movieReviewService.deleteMovieReview(id);
         return ResponseEntity.noContent().build();
@@ -86,7 +96,7 @@ public class MovieReviewController {
     }
 
     //TMDB_ID로 리뷰 조회
-    @GetMapping("/{TMDB_ID}")
+    @GetMapping("/tmdb/{tmdbId}")
     public List<MovieReview> getMovieReviewsByTmdbId(@PathVariable Long tmdbId) {
         return movieReviewService.getMovieReviewsByTmdbId(tmdbId);
     }

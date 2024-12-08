@@ -10,7 +10,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
-
 import java.util.Date;
 
 @Entity
@@ -22,8 +21,11 @@ public class MovieReview {
     private Integer id;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = true) // NN 해제
+    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = true)
     private User user;
+
+    @Column(name = "user_id", insertable = false, updatable = false)
+    private String userId;
 
     @Column
     private Integer rating;
@@ -31,24 +33,23 @@ public class MovieReview {
     @Column(columnDefinition = "TEXT")
     private String review;
 
-    // 추가된 필드
     @Column(length = 255)
-    private String reviewTitle; // 리뷰 제목
+    private String reviewTitle;
 
     @Temporal(TemporalType.TIMESTAMP)
-    private Date reviewDate; // 날짜
+    private Date reviewDate;
 
     @Column(length = 100)
-    private String nickname; // 닉네임
+    private String nickname;
 
     @Column(name = "tmdb_id")
     private Long tmdbId;
 
     @Column(nullable = false)
-    private Integer upvotes = 0; // 추천수, 기본값 0
+    private Integer upvotes = 0;
 
     @Column(nullable = false)
-    private Integer downvotes = 0; // 비추천수, 기본값 0
+    private Integer downvotes = 0;
 
     // 기본 생성자
     public MovieReview() {}
@@ -64,7 +65,7 @@ public class MovieReview {
     }
 
     // TMDB에서 가져온 리뷰 받는 생성자
-    public MovieReview(String reviewTitle, Integer rating, String nickname, Date reviewDate, String review, Integer upvotes, Integer downvotes, Long tmdbId){
+    public MovieReview(String reviewTitle, Integer rating, String nickname, Date reviewDate, String review, Integer upvotes, Integer downvotes, Long tmdbId) {
         this.reviewTitle = reviewTitle;
         this.rating = rating;
         this.nickname = nickname;
@@ -92,6 +93,13 @@ public class MovieReview {
         this.user = user;
     }
 
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
 
     public Integer getRating() {
         return rating;

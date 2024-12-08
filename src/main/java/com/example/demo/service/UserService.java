@@ -2,7 +2,12 @@ package com.example.demo.service;
 
 import com.example.demo.dto.UserDto;
 import com.example.demo.entity.User;
+import com.example.demo.repository.MovieReviewRepository;
+import com.example.demo.repository.TVReviewRepository;
 import com.example.demo.repository.UserRepository;
+
+import jakarta.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +25,11 @@ public class UserService {
     @Autowired
     private VerificationCodeService verificationCodeService;
 
+    @Autowired
+    private MovieReviewRepository movieReviewRepository;
+
+    @Autowired
+    private TVReviewRepository tvReviewRepository;
 
     // 모든 사용자 조회
     public List<User> getAllUsers() {
@@ -133,12 +143,17 @@ public class UserService {
     }
 
     // 닉네임 변경
+    @Transactional
     public void updateNickname(String userId, String newNickname) {
 
         User user = getUserById(userId);
 
         user.setNickName(newNickname);
         userRepository.save(user);
+        
+        // 해당 사용자의 리뷰 데이터 업데이트
+        movieReviewRepository.updateNicknameByUser(userId, newNickname);
+        tvReviewRepository.updateNicknameByUser(userId, newNickname);
     }
 
 }

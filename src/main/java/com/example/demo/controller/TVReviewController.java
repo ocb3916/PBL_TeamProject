@@ -3,6 +3,8 @@ package com.example.demo.controller;
 import com.example.demo.entity.TVReview;
 import com.example.demo.entity.User;
 import com.example.demo.service.TVReviewService;
+import com.example.demo.service.UserService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +18,9 @@ public class TVReviewController {
     @Autowired
     private TVReviewService TVReviewService;
 
+    @Autowired
+    private UserService userService;
+    
     // 모든 리뷰 조회
     @GetMapping
     public List<TVReview> getAllTVReviews() {
@@ -54,6 +59,10 @@ public class TVReviewController {
     // 리뷰 생성 또는 업데이트
     @PostMapping
     public TVReview createOrUpdateTVReview(@RequestBody TVReview TVReview) {
+        if (TVReview.getUserId() != null && !TVReview.getUserId().isEmpty()) {
+            User user = userService.getUserById(TVReview.getUserId());
+            TVReview.setUser(user);
+        }
         return TVReviewService.saveTVReview(TVReview);
     }
 

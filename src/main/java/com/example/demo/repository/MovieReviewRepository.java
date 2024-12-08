@@ -3,6 +3,10 @@ package com.example.demo.repository;
 import com.example.demo.entity.MovieReview;
 import com.example.demo.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
 import java.util.List;
 
 public interface MovieReviewRepository extends JpaRepository<MovieReview, Integer> {
@@ -27,5 +31,9 @@ public interface MovieReviewRepository extends JpaRepository<MovieReview, Intege
 
     // TMDB아이디로 리뷰 조회
     List<MovieReview> findByTmdbId(Long tmdbId);
+    
+    @Modifying
+    @Query("UPDATE MovieReview r SET r.nickname = :nickname WHERE r.user.id = :userId")
+    void updateNicknameByUser(@Param("userId") String userId, @Param("nickname") String nickname);
 }
 

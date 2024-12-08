@@ -12,6 +12,8 @@ import com.example.demo.service.EmailService;
 import com.example.demo.service.UserService;
 import com.example.demo.service.VerificationCodeService;
 
+import jakarta.servlet.http.HttpSession;
+
 import java.util.Map;
 
 @RestController
@@ -39,8 +41,8 @@ public class VerificationCodeController {
     }
 
     @PostMapping("/verify")
-    public ResponseEntity<String> verifyCode(@RequestBody Map<String, String> request) {
-        String userId = request.get("userId");
+    public ResponseEntity<String> verifyCode(@RequestBody Map<String, String> request, HttpSession session) {
+        String userId = (String) session.getAttribute("userId");
         String code = request.get("code");
         boolean isValid = verificationCodeService.verifyCode(userId, code);
         if (isValid) {

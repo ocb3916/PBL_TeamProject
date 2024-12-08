@@ -25,6 +25,9 @@ public class TVReview {
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = true) // NN 해제
     private User user;
 
+    @Column(name = "user_id", insertable = false, updatable = false)
+    private String userId;
+
     @Column
     private Integer rating;
 
@@ -92,6 +95,13 @@ public class TVReview {
         this.user = user;
     }
 
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
 
     public Integer getRating() {
         return rating;
