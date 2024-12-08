@@ -142,7 +142,9 @@ public class UserController {
     @PostMapping("/resend-code")
     public ResponseEntity<?> resendCode(@RequestBody Map<String, String> request) {
         String userId = request.get("userId");
-        String email = request.get("email");
+        //String email = request.get("email");
+        User user = userService.getUserById(userId);
+        String email = user.getEmail(); // 아이디 하나만 입력받게 수정
 
         if (email == null || email.isEmpty()) {
             return ResponseEntity.badRequest().body(Map.of(
