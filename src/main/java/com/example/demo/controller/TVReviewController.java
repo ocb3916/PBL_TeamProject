@@ -62,6 +62,7 @@ public class TVReviewController {
         if (TVReview.getUserId() != null && !TVReview.getUserId().isEmpty()) {
             User user = userService.getUserById(TVReview.getUserId());
             TVReview.setUser(user);
+            TVReview.setNickname(user.getNickName());
         }
         return TVReviewService.saveTVReview(TVReview);
     }
