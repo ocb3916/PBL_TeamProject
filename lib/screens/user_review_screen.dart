@@ -1,43 +1,43 @@
 import 'package:flutter/material.dart';
-import '../data/movie_data.dart';  // 영화 데이터를 가져오기 위해 추가
 import '../data/review_data.dart';
-import '../model/movie_model.dart';  // 영화 모델 클래스
 import '../model/review_model.dart';
 import '../uikit/widgets/top_bar.dart';
 import '../constants/colors.dart';
 import '../uikit/widgets/review_card.dart';
+import 'edit_review_screen.dart';
+import '../data/movie_data.dart';  // 영화 데이터를 가져오기 위해 추가
+import '../model/movie_model.dart';  // 영화 모델 클래스
 
-class ReviewListScreen extends StatefulWidget {
+class UserReviewScreen extends StatefulWidget {
+  final String userId;
+
+  UserReviewScreen({required this.userId});
+
   @override
-  _ReviewListScreenState createState() => _ReviewListScreenState();
+  _UserReviewScreenState createState() => _UserReviewScreenState();
 }
 
-class _ReviewListScreenState extends State<ReviewListScreen> {
-  final MovieReviewData _reviewData = MovieReviewData();  // 수정된 데이터 클래스
-  List<MovieReview> _reviews = [];  // 수정된 모델
+class _UserReviewScreenState extends State<UserReviewScreen> {
+  List<MovieReview> _userReviews = [];  // 수정된 모델
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _fetchReviews();
+    fetchUserReviews();
   }
 
-  void _fetchReviews() async {
+  fetchUserReviews() async {
+    var reviewData = MovieReviewData();  // 수정된 데이터 클래스
     try {
-      List<MovieReview> reviews = await _reviewData.fetchReviewsSortedUpvotes();
-      print('Reviews fetched: ${reviews.length}'); // 리뷰 개수 출력
-      setState(() {
-        _reviews = reviews;
-        _isLoading = false;
-      });
+      _userReviews = await reviewData.fetchReviewsForUser(widget.userId);
+      print('Reviews fetched: ${_userReviews.length}'); // 리뷰 개수 출력
     } catch (e) {
+      print("Error fetching user reviews: $e");
+    } finally {
       setState(() {
         _isLoading = false;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('리뷰를 불러오는 데 실패했습니다.')),
-      );
     }
   }
 
@@ -53,12 +53,10 @@ class _ReviewListScreenState extends State<ReviewListScreen> {
       appBar: TopBar(),
       body: _isLoading
           ? Center(child: CircularProgressIndicator())
-          : _reviews.isEmpty
-          ? Center(child: Text('리뷰가 없습니다', style: TextStyle(color: AppColors.textWhite)))
           : ListView.builder(
-        itemCount: _reviews.length,
+        itemCount: _userReviews.length,
         itemBuilder: (context, index) {
-          final review = _reviews[index];
+          final review = _userReviews[index];
           return FutureBuilder<MovieModel>(
             future: fetchMovieById(review.tmdbId),
             builder: (context, snapshot) {
@@ -80,7 +78,19 @@ class _ReviewListScreenState extends State<ReviewListScreen> {
                   review: review.review,
                   likes: review.upvotes,
                   onTap: () {
-                    // 리뷰 카드 클릭 시 이벤트 처리
+                    print("리뷰 카드 클릭됨");
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => EditReviewScreen(review: review),
+                      ),
+                    ).then((updatedReview) {
+                      if (updatedReview != null) {
+                        setState(() {
+                          _userReviews[index] = updatedReview;
+                        });
+                      }
+                    });
                   },
                 ),
               );

@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 class MovieModel {
   final bool adult;
   final String backdropPath;
@@ -31,6 +29,7 @@ class MovieModel {
     required this.genreIds,
   });
 
+
   factory MovieModel.fromJson(Map<String, dynamic> json) {
     return MovieModel(
       adult: json['adult'] ?? false,
@@ -47,6 +46,8 @@ class MovieModel {
       voteCount: json['vote_count'] ?? 0,
       genreIds: List<int>.from(json['genre_ids'] ?? []),
     );
+
+
   }
 
   @override

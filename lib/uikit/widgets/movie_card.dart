@@ -51,7 +51,7 @@ class MovieCard extends StatelessWidget {
             // 출시 정보 텍스트
             Text(
               releaseInfo,
-              style: TextStyle(fontSize: 12, color: AppColors.textWhite),
+              style: TextStyle(fontSize: 11, color: AppColors.textWhite),
               maxLines: 1, // 한 줄에 최대 1줄
               overflow: TextOverflow.ellipsis, // 오버플로우 발생 시 점 3개로 표시
             ),

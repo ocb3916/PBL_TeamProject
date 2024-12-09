@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../screens/home_screen.dart';
 
 class TopBar extends StatelessWidget implements PreferredSizeWidget {
   @override
@@ -7,10 +8,19 @@ class TopBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 400,
+      height: kToolbarHeight,
       alignment: AlignmentDirectional.centerStart,
-      child: Image.asset("images/logo.png"),
       color: Colors.black, // 원하는 색상으로 설정
+      child: GestureDetector(
+        onTap: () {
+          Navigator.pushReplacementNamed(context, '/home');
+        },
+        child: Image.asset(
+          "images/logo.png",
+          fit: BoxFit.contain,
+          height: kToolbarHeight,
+        ),
+      ),
     );
   }
 }

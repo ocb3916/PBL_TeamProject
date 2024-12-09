@@ -28,4 +28,10 @@ class MyApp extends StatelessWidget {
       },
     );
   }
+
+  Future<bool> checkLoginStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('userId') != null; // ID가 있으면 true
+  }
+
 }

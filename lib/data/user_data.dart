@@ -1,36 +1,144 @@
 import 'dart:convert';
-import 'package:untitled1/data/res/RES_L001.dart';
-import 'package:untitled1/model/movie_model.dart';
 import 'package:http/http.dart' as http;
-
+import '../SharedPreference.dart';
 import '../uiState/profile/User.dart';
+import '../data/req/REQ_L001.dart';
 
 class UserData {
-  // TODO 백엔드 서버  로그인 API domain으로 변경
-  final String baseUrl ='https://api.themoviedb.org/3/movie';
+  final String baseUrl = 'https://contentspick.site/api/users';
 
-  //TODO 로그인 메소드
-  Future<User> login(REQ) async {
-    final response = await http.get(
-      // TODO 백엔드 서버  로그인 API path(uri)로 변경
-      //url, domain, path(uri) 차이점
-      //url은 uri를 포함하는 개념 http://..... 부터 전부다 지칭하는 표현
-      //domain은 http://www.naver.com 처럼 앞부분
-      //uri는 http://www.naver.com/maps 에서 뒤에붙는 /maps 부터를 지칭
-      Uri.parse('$baseUrl/now_playing?language=ko-KR&page=1'),
+  Future<User> login(REQ_L001 reqL001) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/login'),
       headers: {
+        'Content-Type': 'application/json; charset=UTF-8',
         'accept': 'application/json',
-      }
+      },
+      body: json.encode({
+        'id': reqL001.id,
+        'pw': reqL001.pw,
+      }),
     );
 
-    //성공응답
     if (response.statusCode == 200) {
-      RES_L001 resL001 = jsonDecode(response.body);
-      return User(resL001.nickname, resL001.email, resL001.birth, resL001.male, resL001.imagePath);
+      final data = json.decode(utf8.decode(response.bodyBytes));
+      return User(
+        id: data['id'],
+        nickname: data['nickName'],
+        email: data['email'],
+        birthDate: data['birthDate'],
+        gender: data['gender'],
+        name: data['name'],
+        phoneNumber: data['phoneNumber'],
+        password: reqL001.pw,
+      );
     } else {
-      throw Exception("Failed to load movie data");
+      throw Exception("로그인 실패: ${response.body}");
     }
   }
 
+  Future<void> logout(String userId) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/logout'),
+      headers: {
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: json.encode({
+        'userId': userId,
+      }),
+    );
 
+    if (response.statusCode != 200) {
+      throw Exception("로그아웃 실패: ${response.body}");
+    }
+  }
+
+  Future<void> deleteAccount(String userId) async {
+    final response = await http.delete(
+      Uri.parse('$baseUrl/delete/$userId'),
+      headers: {
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+
+    if (response.statusCode != 204) {
+      throw Exception("계정 삭제 실패: ${response.body}");
+    }
+  }
+
+  Future<bool> checkIdDuplicate(String id) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/check-id'),
+      headers: {
+        'Content-Type': 'application/json; charset=UTF-8',
+        'accept': 'application/json',
+      },
+      body: json.encode({'id': id}),
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(utf8.decode(response.bodyBytes));
+      return data['available'];
+    } else {
+      throw Exception("아이디 중복 체크 실패: ${response.body}");
+    }
+  }
+
+  Future<Map<String, dynamic>> fetchUserProfile(String userId) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/$userId'),
+    );
+
+    if (response.statusCode == 200) {
+      return json.decode(utf8.decode(response.bodyBytes));
+    } else {
+      throw Exception("프로필 조회 실패: ${response.body}");
+    }
+  }
+
+  Future<void> updateEmail(String userId, String newEmail) async {
+    final response = await http.put(
+      Uri.parse('$baseUrl/email'),
+      headers: {
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: json.encode({'userId': userId, 'value': newEmail}),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception("이메일 업데이트 실패: ${response.body}");
+    }
+  }
+
+  Future<void> updateNickname(String userId, String newNickname) async {
+    final response = await http.put(
+      Uri.parse('$baseUrl/nickname'),
+      headers: {
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: json.encode({'userId': userId, 'value': newNickname}),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception("닉네임 업데이트 실패: ${response.body}");
+    }
+  }
+
+  Future<void> resendVerificationCode(String id, String name) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/resend-code'),
+      headers: {
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: json.encode({
+        'id': id,
+        'name': name,
+      }),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception("인증번호 재전송 실패: ${response.body}");
+    }
+  }
 }
+

@@ -5,6 +5,7 @@ import 'profile_screen.dart';
 import 'login_screen.dart';
 import 'sign_up_screen.dart';
 import '../constants/colors.dart'; // 추가
+import 'package:untitled1/SessionManager.dart';
 
 class MainScreen extends StatefulWidget {
   @override
@@ -17,13 +18,29 @@ class _MainScreenState extends State<MainScreen> {
   final List<Widget> _screens = [
     HomeScreen(),
     SearchScreen(),
-    ProfileScreen(),
   ];
 
   void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+    if (index == 2) { // 마이페이지가 선택될 경우
+      if (!SessionManager.isLogin()) {
+        // 사용자가 로그인하지 않았다면 로그인 화면으로 이동
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => LoginScreen()),
+        );
+      } else {
+        // 사용자가 로그인된 경우 프로필 화면으로 이동
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => ProfileScreen()),
+        );
+      }
+    } else {
+      // 홈 또는 검색 화면 선택 시 인덱스 변경
+      setState(() {
+        _selectedIndex = index;
+      });
+    }
   }
 
   @override

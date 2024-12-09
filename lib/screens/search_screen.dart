@@ -14,6 +14,7 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   List<MovieModel> _movies = [];
+  Set<int> _movieIds = Set(); // 영화 ID를 저장하는 Set 추가
   List<MovieModel> _filteredMovies = [];
   List<String> _recentSearches = []; // 최근 검색어 저장 리스트
   bool _isLoading = true;
@@ -28,14 +29,23 @@ class _SearchScreenState extends State<SearchScreen> {
     _searchController.addListener(_onSearchChanged);
   }
 
-  _fetchMovies() async {
+  Future<void> _fetchMovies() async {
     // 초기 유저를 위해 데이터 로드
     var data = MovieData();
+    List<MovieModel> allMovies = [];
+
     try {
-      // 여기서 TMDB API를 호출함.
-      List<MovieModel> popularMovies = await data.fetchPopularMovie();
+      for (int page = 1; page <= 10; page++) {
+        List<MovieModel> popularMovies = await data.fetchCombinedMovies();
+        for (var movie in popularMovies) {
+          if (!_movieIds.contains(movie.id)) {
+            allMovies.add(movie);
+            _movieIds.add(movie.id); // 중복을 피하기 위해 ID 저장
+          }
+        }
+      }
       setState(() {
-        _movies = popularMovies;
+        _movies = allMovies;
         _isLoading = false;
       });
     } catch (e) {
@@ -46,7 +56,7 @@ class _SearchScreenState extends State<SearchScreen> {
     }
   }
 
-  _onSearchChanged() {
+  void _onSearchChanged() {
     setState(() {
       final query = _searchController.text.toLowerCase();
       _filteredMovies = _movies
@@ -57,6 +67,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   void dispose() {
+    _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
     super.dispose();
   }
@@ -112,10 +123,10 @@ class _SearchScreenState extends State<SearchScreen> {
               child: _isLoading
                   ? Center(child: CircularProgressIndicator())
                   : _filteredMovies.isEmpty
-                      ? Center(
-                          child: Text('결과가 없습니다.',
-                              style: TextStyle(color: AppColors.textWhite)))
-                      : _buildMovieList(),
+                  ? Center(
+                  child: Text('결과가 없습니다.',
+                      style: TextStyle(color: AppColors.textWhite)))
+                  : _buildMovieList(),
             ),
           ],
         ),
@@ -125,34 +136,38 @@ class _SearchScreenState extends State<SearchScreen> {
 
   // 영화 리스트를 생성하는 메소드
   Widget _buildMovieList() {
-    // TODO :: GRIDLIST VIEW로 변경
     return GridView.builder(
-      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(maxCrossAxisExtent: 200, childAspectRatio: 2/3),
+      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(maxCrossAxisExtent: 200.0, childAspectRatio: 2/3),
       itemCount: _filteredMovies.length,
       itemBuilder: (context, index) {
         final movie = _filteredMovies[index];
-        return MovieCard(
-          title: movie.title,
-          image: Image.network(
-            'https://image.tmdb.org/t/p/w500${movie.posterPath}',
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) {
-              return Icon(Icons.error);
+        return Container(
+          padding: EdgeInsets.all(0),
+          child: MovieCard(
+            title: movie.title,
+            image: Image.network(
+              'https://image.tmdb.org/t/p/w500${movie.posterPath}',
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return Icon(Icons.error);
+              },
+            ),
+            releaseInfo: '${movie.releaseDate}',
+            movieId: movie.id,
+            onTap: () {
+              setState(() {
+                if (!_recentSearches.contains(movie.title)) {
+                  _recentSearches.add(movie.title);
+                }
+              });
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => MovieDetailScreen(movieId: movie.id),
+                ),
+              );
             },
           ),
-          releaseInfo: '${movie.releaseDate}',
-          movieId: movie.id,
-          onTap: () {
-            setState(() {
-              _recentSearches.add(movie.title);
-            });
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => MovieDetailScreen(movieId: movie.id),
-              ),
-            );
-          },
         );
       },
     );
