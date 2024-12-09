@@ -63,6 +63,7 @@ public class MovieReviewController {
         if (movieReview.getUserId() != null && !movieReview.getUserId().isEmpty()) {
             User user = userService.getUserById(movieReview.getUserId());
             movieReview.setUser(user);
+            movieReview.setNickname(user.getNickName());
         }
         return movieReviewService.saveMovieReview(movieReview);
     }
