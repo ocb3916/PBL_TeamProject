@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:untitled1/screens/password/password_reset_step2.dart';
 import 'dart:convert';
 import '../../constants/colors.dart';
 import '../../uikit/widgets/top_bar.dart';
+import 'password_reset_step2.dart';
 
 class PasswordResetStep1 extends StatelessWidget {
   final idController = TextEditingController();
@@ -35,7 +35,6 @@ class PasswordResetStep1 extends StatelessWidget {
           MaterialPageRoute(
             builder: (context) => PasswordResetStep2(
               id: idController.text,
-              name: nameController.text,
             ),
           ),
         );

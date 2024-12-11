@@ -4,7 +4,6 @@ import '../data/user_data.dart';
 import '../uikit/widgets/top_bar.dart'; // TopBar import
 import '../uikit/widgets/sub_title.dart'; // SubTitle import
 import '../constants/colors.dart'; // AppColors import
-import 'package:http/http.dart' as http;
 import 'package:untitled1/SessionManager.dart';
 
 import 'inquiry_screen.dart';
@@ -26,6 +25,7 @@ class SettingsScreen extends StatelessWidget {
       );
     }
   }
+
   void showDeleteConfirmationDialog(BuildContext parentContext) {
     showDialog(
       context: parentContext,
@@ -69,7 +69,6 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -80,36 +79,18 @@ class SettingsScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SubTitle(title: '계정 연동 설정'),
-            SwitchListTile(
-              title: Text('카카오 연동', style: TextStyle(color: AppColors.textWhite)), // 텍스트 색상 변경
-              value: true, // 기본값 예시
-              activeColor: AppColors.textWhite, // 선택 시 색상
-              onChanged: (bool value) {
-                // 카카오 연동 상태 변경 로직
-              },
-            ),
-            SwitchListTile(
-              title: Text('네이버 연동', style: TextStyle(color: AppColors.textWhite)), // 텍스트 색상 변경
-              value: false, // 기본값 예시
-              activeColor: AppColors.textWhite, // 선택 시 색상
-              onChanged: (bool value) {
-                // 네이버 연동 상태 변경 로직
-              },
-            ),
-            Divider(color: AppColors.textWhite), // 구분선 색상 변경
             SubTitle(title: '고객센터'), // 텍스트 색상 변경
             ListTile(
               title: Text('문의하기/FAQ', style: TextStyle(color: AppColors.textWhite)), // 텍스트 색상 변경
               onTap: () {
-                Navigator.push( context, MaterialPageRoute(builder: (context) => InquiryScreen()), );
+                Navigator.push(context, MaterialPageRoute(builder: (context) => InquiryScreen()));
               },
               trailing: Icon(Icons.keyboard_arrow_right, color: AppColors.textWhite), // 아이콘 색상 변경
             ),
             ListTile(
               title: Text('공지사항', style: TextStyle(color: AppColors.textWhite)), // 텍스트 색상 변경
               onTap: () {
-                Navigator.push( context, MaterialPageRoute(builder: (context) => NoticesScreen()), );
+                Navigator.push(context, MaterialPageRoute(builder: (context) => NoticesScreen()));
               },
               trailing: Icon(Icons.keyboard_arrow_right, color: AppColors.textWhite), // 아이콘 색상 변경
             ),
@@ -132,7 +113,5 @@ class SettingsScreen extends StatelessWidget {
         ),
       ),
     );
-
   }
-
 }
