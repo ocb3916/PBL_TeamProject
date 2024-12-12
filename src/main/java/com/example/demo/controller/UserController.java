@@ -118,9 +118,8 @@ public class UserController {
         return ResponseEntity.ok().build(); // 성공 응답
     }
 
-    // 비밀번호 재설정 스타트포인트
     @PostMapping("/user-authentication")
-    public ResponseEntity<String> userAuthentication(@RequestBody Map<String, String> request, HttpSession session) {
+    public ResponseEntity<String> userAuthentication(@RequestBody Map<String, String> request) {
         // 얘네 역할은 유저의 ID와 이름으로 인증받아서 이메일 보내는 것까지
         String id = request.get("id");
         String name = request.get("name");
@@ -130,7 +129,6 @@ public class UserController {
             String verificationCode = verificationCodeService.generateCode(id); // 인증번호 생성
             boolean isSent = emailService.sendVerificationEmail(email, verificationCode); // 이메일 전송
             if (isSent) {
-                session.setAttribute("userId", id);
                 return ResponseEntity.ok("Verification code has been sent to your email.");
             } else {
                 return ResponseEntity.status(500).body("Failed to send verification code.");
@@ -139,50 +137,17 @@ public class UserController {
             return ResponseEntity.status(400).body("User not found or name does not match.");
         }
     }
-
-    // 인증번호 재전송
-    @PostMapping("/resend-code")
-    public ResponseEntity<?> resendCode(HttpSession session) {
-        String userId = (String) session.getAttribute("userId");
-        User user = userService.getUserById(userId);
-        String email = user.getEmail();
-
-        if (email == null || email.isEmpty()) {
-            return ResponseEntity.badRequest().body(Map.of(
-                "success", false,
-                "message", "Email must be provided."
-            ));
-        }
-
-        // 새로운 인증번호 생성 및 저장
-        String newCode = verificationCodeService.generateCode(userId);
-
-        // 이메일로 전송
-        boolean emailSent = emailService.sendVerificationEmail(email, newCode);
-
-        if (!emailSent) {
-            return ResponseEntity.internalServerError().body(Map.of(
-                "success", false,
-                "message", "Failed to send verification email."
-            ));
-        }
-
-        return ResponseEntity.ok(Map.of(
-            "success", true,
-            "message", "Verification code resent successfully."
-        ));
-    }
     
     // 비밀번호 재설정 엔드포인트 (인증번호 검증은 인증번호컨트롤러에서 처리)
     @PostMapping("/reset-password")
-    public ResponseEntity<String> resetPassword(@RequestBody Map<String, String> request, HttpSession session) {
+    public ResponseEntity<String> resetPassword(@RequestBody Map<String, String> request) {
         // 얘 역할은 그냥 비밀번호 초기화 역할만
-        String id = (String) session.getAttribute("userId");
+        String id = request.get("id");
         String newPassword = request.get("newPassword");
         User user = userService.getUserById(id);
         // 비밀번호 재설정
         boolean isReset = userService.resetPassword(user.getEmail(), newPassword);
-
+    
         if (isReset) {
             return ResponseEntity.ok("Password has been reset successfully.");
         } else {
