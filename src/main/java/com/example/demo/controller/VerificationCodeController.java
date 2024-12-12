@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,8 +42,8 @@ public class VerificationCodeController {
     }
 
     @PostMapping("/verify")
-    public ResponseEntity<String> verifyCode(@RequestBody Map<String, String> request, HttpSession session) {
-        String userId = (String) session.getAttribute("userId");
+    public ResponseEntity<String> verifyCode(@RequestBody Map<String, String> request) {
+        String userId = request.get("userId");
         String code = request.get("code");
         boolean isValid = verificationCodeService.verifyCode(userId, code);
         if (isValid) {
